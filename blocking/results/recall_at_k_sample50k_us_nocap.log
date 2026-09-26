@@ -1,0 +1,11 @@
+[measure] loading ground truth ...
+[measure] 2,083,574 S1 entities have ground truth
+[measure] stratified sample = 50,000 S1 rows (restricted to us)
+[measure] picked 50,000 S1 rows
+
+[measure] === partition 'us' (S1 rows = 1,323,633) ===
+  loaded s1=50,000  s2=3,016,817  s3=3,170,056   (81.8s)
+  scope s1 = 50,000
+  truth pairs (in-country): 183,318  (in-script 183,318 + cross-script 0)
+  indexes built (132.22s)
+  P1 hits computed (25.48s)

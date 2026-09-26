@@ -1,0 +1,310 @@
+[
+  {
+    "feature": "retrieval_score",
+    "gain": 302118.45203122497
+  },
+  {
+    "feature": "addr_contain_rev",
+    "gain": 196398.33797991276
+  },
+  {
+    "feature": "z_score_in_group",
+    "gain": 163492.7096196413
+  },
+  {
+    "feature": "score_minus_group_mean",
+    "gain": 82090.68353438377
+  },
+  {
+    "feature": "addr_token_jaccard",
+    "gain": 78444.57082772255
+  },
+  {
+    "feature": "addr_numeric_jaccard",
+    "gain": 77838.80285561085
+  },
+  {
+    "feature": "score_ratio_to_max",
+    "gain": 26330.41928690672
+  },
+  {
+    "feature": "name_len_diff",
+    "gain": 18223.16618666053
+  },
+  {
+    "feature": "eff_name_ratio",
+    "gain": 17641.719040334225
+  },
+  {
+    "feature": "rank_in_group",
+    "gain": 17490.90771061182
+  },
+  {
+    "feature": "addr_max_idf_shared",
+    "gain": 16319.586290478706
+  },
+  {
+    "feature": "script_match",
+    "gain": 16187.008712887764
+  },
+  {
+    "feature": "translit_ratio",
+    "gain": 15780.104982584715
+  },
+  {
+    "feature": "mean_field_sim",
+    "gain": 12649.990918129683
+  },
+  {
+    "feature": "min_field_sim",
+    "gain": 12359.558782041073
+  },
+  {
+    "feature": "score_gap_below",
+    "gain": 10679.53541430831
+  },
+  {
+    "feature": "name_token_sort_ratio",
+    "gain": 8306.403510689735
+  },
+  {
+    "feature": "name_len_ratio",
+    "gain": 7742.872309207916
+  },
+  {
+    "feature": "score_margin_to_2nd",
+    "gain": 5552.76812338829
+  },
+  {
+    "feature": "max_idf_shared",
+    "gain": 5191.986129283905
+  },
+  {
+    "feature": "addr_dice",
+    "gain": 5162.667954325676
+  },
+  {
+    "feature": "addr_idf_overlap",
+    "gain": 5109.775985270739
+  },
+  {
+    "feature": "idf_weighted_overlap",
+    "gain": 4979.3151015639305
+  },
+  {
+    "feature": "translit_token_set_ratio",
+    "gain": 4788.026989817619
+  },
+  {
+    "feature": "token_count_ratio",
+    "gain": 4377.915047317743
+  },
+  {
+    "feature": "addr_ngram_jaccard",
+    "gain": 4142.087983012199
+  },
+  {
+    "feature": "name_ngram_jaccard",
+    "gain": 3741.3323208093643
+  },
+  {
+    "feature": "addr_token_count_ratio",
+    "gain": 3595.8070778250694
+  },
+  {
+    "feature": "eff_name_token_set_ratio",
+    "gain": 3414.968765616417
+  },
+  {
+    "feature": "name_ratio",
+    "gain": 3277.192623436451
+  },
+  {
+    "feature": "last_token_exact",
+    "gain": 3180.9770344495773
+  },
+  {
+    "feature": "name_ngram_contain",
+    "gain": 3141.70649266243
+  },
+  {
+    "feature": "frac_above",
+    "gain": 2814.1594372689724
+  },
+  {
+    "feature": "name_token_set_ratio",
+    "gain": 2667.726640164852
+  },
+  {
+    "feature": "token_count_diff",
+    "gain": 2640.700175046921
+  },
+  {
+    "feature": "sim_disagreement",
+    "gain": 2401.547760516405
+  },
+  {
+    "feature": "is_cross_script",
+    "gain": 2338.9823184609413
+  },
+  {
+    "feature": "name_contain_rev",
+    "gain": 2329.761981546879
+  },
+  {
+    "feature": "first_token_exact",
+    "gain": 2257.2372568249702
+  },
+  {
+    "feature": "addr_contain_fwd",
+    "gain": 2147.965773999691
+  },
+  {
+    "feature": "n_competitors_for_cand",
+    "gain": 2128.1101453602314
+  },
+  {
+    "feature": "addr_first_num_equal",
+    "gain": 2050.6272650957108
+  },
+  {
+    "feature": "cand_best_score",
+    "gain": 1864.132140636444
+  },
+  {
+    "feature": "name_token_jaccard",
+    "gain": 1422.5244454145432
+  },
+  {
+    "feature": "rank_reverse",
+    "gain": 1403.0607865452766
+  },
+  {
+    "feature": "cand_score_margin",
+    "gain": 1303.118841946125
+  },
+  {
+    "feature": "addr_last_exact",
+    "gain": 1266.0493438243866
+  },
+  {
+    "feature": "addr_numeric_set_exact",
+    "gain": 1160.1795921325684
+  },
+  {
+    "feature": "cand_is_S2",
+    "gain": 1084.3933531045914
+  },
+  {
+    "feature": "is_domain_r",
+    "gain": 1029.8291609287262
+  },
+  {
+    "feature": "name_digits_equal",
+    "gain": 819.7594968676567
+  },
+  {
+    "feature": "eff_token_contain_rev",
+    "gain": 590.3408463597298
+  },
+  {
+    "feature": "name_contain_fwd",
+    "gain": 468.25072771310806
+  },
+  {
+    "feature": "addr_first_num_conflict",
+    "gain": 410.3714756369591
+  },
+  {
+    "feature": "shared_token_count",
+    "gain": 213.29203793406487
+  },
+  {
+    "feature": "translit_token_jaccard",
+    "gain": 201.83512318134308
+  },
+  {
+    "feature": "name_token_dice",
+    "gain": 63.317960262298584
+  },
+  {
+    "feature": "translit_token_contain",
+    "gain": 61.10997939109802
+  },
+  {
+    "feature": "name_core_exact",
+    "gain": 46.10954988002777
+  },
+  {
+    "feature": "is_domain_either",
+    "gain": 31.22541046142578
+  },
+  {
+    "feature": "name_high_addr_low",
+    "gain": 30.27738928794861
+  },
+  {
+    "feature": "eff_token_jaccard",
+    "gain": 12.670997679233551
+  },
+  {
+    "feature": "addr_exact",
+    "gain": 11.022496163845062
+  },
+  {
+    "feature": "name_low_addr_high",
+    "gain": 5.753900051116943
+  },
+  {
+    "feature": "eff_token_contain_fwd",
+    "gain": 5.4904398918151855
+  },
+  {
+    "feature": "is_top1",
+    "gain": 3.541670083999634
+  },
+  {
+    "feature": "name_exact",
+    "gain": 2.7754199504852295
+  },
+  {
+    "feature": "is_mutual_best",
+    "gain": 1.322450041770935
+  },
+  {
+    "feature": "name_digits_conflict",
+    "gain": 0.0
+  },
+  {
+    "feature": "name_has_digits_both",
+    "gain": 0.0
+  },
+  {
+    "feature": "addr_missing_either",
+    "gain": 0.0
+  },
+  {
+    "feature": "addr_missing_both",
+    "gain": 0.0
+  },
+  {
+    "feature": "name_missing_either",
+    "gain": 0.0
+  },
+  {
+    "feature": "n_fields_comparable",
+    "gain": 0.0
+  },
+  {
+    "feature": "both_high",
+    "gain": 0.0
+  },
+  {
+    "feature": "is_domain_l",
+    "gain": 0.0
+  },
+  {
+    "feature": "group_size",
+    "gain": 0.0
+  }
+]

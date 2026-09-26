@@ -1,0 +1,310 @@
+[
+  {
+    "feature": "score_minus_group_mean",
+    "gain": 31456.13748234918
+  },
+  {
+    "feature": "addr_dice",
+    "gain": 22993.7542262692
+  },
+  {
+    "feature": "retrieval_score",
+    "gain": 14384.301874288882
+  },
+  {
+    "feature": "addr_contain_rev",
+    "gain": 7103.21738450136
+  },
+  {
+    "feature": "addr_numeric_jaccard",
+    "gain": 880.4256756713148
+  },
+  {
+    "feature": "addr_max_idf_shared",
+    "gain": 872.2855297623028
+  },
+  {
+    "feature": "addr_token_jaccard",
+    "gain": 843.1743733010371
+  },
+  {
+    "feature": "min_field_sim",
+    "gain": 615.6305908769136
+  },
+  {
+    "feature": "idf_weighted_overlap",
+    "gain": 559.4246048447676
+  },
+  {
+    "feature": "score_ratio_to_max",
+    "gain": 548.5472679369414
+  },
+  {
+    "feature": "addr_first_num_equal",
+    "gain": 387.69383803289384
+  },
+  {
+    "feature": "rank_in_group",
+    "gain": 334.40684524526296
+  },
+  {
+    "feature": "eff_name_ratio",
+    "gain": 323.26775368186645
+  },
+  {
+    "feature": "addr_ngram_jaccard",
+    "gain": 306.64317222405225
+  },
+  {
+    "feature": "name_len_ratio",
+    "gain": 303.92015337701014
+  },
+  {
+    "feature": "n_competitors_for_cand",
+    "gain": 296.51299519091845
+  },
+  {
+    "feature": "max_idf_shared",
+    "gain": 287.1828119493148
+  },
+  {
+    "feature": "translit_ratio",
+    "gain": 243.47435123170726
+  },
+  {
+    "feature": "score_gap_below",
+    "gain": 242.28040987212444
+  },
+  {
+    "feature": "mean_field_sim",
+    "gain": 236.70017149101477
+  },
+  {
+    "feature": "score_margin_to_2nd",
+    "gain": 226.31400230596773
+  },
+  {
+    "feature": "sim_disagreement",
+    "gain": 217.91499518118212
+  },
+  {
+    "feature": "rank_reverse",
+    "gain": 213.6684975475073
+  },
+  {
+    "feature": "addr_first_num_conflict",
+    "gain": 213.5930889248848
+  },
+  {
+    "feature": "name_len_diff",
+    "gain": 198.64970662631094
+  },
+  {
+    "feature": "script_match",
+    "gain": 182.05241728387773
+  },
+  {
+    "feature": "eff_name_token_set_ratio",
+    "gain": 169.22069907700643
+  },
+  {
+    "feature": "z_score_in_group",
+    "gain": 131.44468150842295
+  },
+  {
+    "feature": "addr_token_count_ratio",
+    "gain": 121.70832201105077
+  },
+  {
+    "feature": "name_token_sort_ratio",
+    "gain": 120.26999725668065
+  },
+  {
+    "feature": "addr_contain_fwd",
+    "gain": 119.1274554412812
+  },
+  {
+    "feature": "addr_idf_overlap",
+    "gain": 105.38117257226259
+  },
+  {
+    "feature": "name_ratio",
+    "gain": 101.12458834392237
+  },
+  {
+    "feature": "is_cross_script",
+    "gain": 99.12576215632726
+  },
+  {
+    "feature": "frac_above",
+    "gain": 83.7721888544038
+  },
+  {
+    "feature": "name_token_set_ratio",
+    "gain": 77.16605343064293
+  },
+  {
+    "feature": "name_ngram_contain",
+    "gain": 64.34137637133244
+  },
+  {
+    "feature": "first_token_exact",
+    "gain": 61.68154236627743
+  },
+  {
+    "feature": "translit_token_set_ratio",
+    "gain": 55.866099192237016
+  },
+  {
+    "feature": "cand_best_score",
+    "gain": 50.42068772285711
+  },
+  {
+    "feature": "token_count_ratio",
+    "gain": 45.97844394110143
+  },
+  {
+    "feature": "name_token_jaccard",
+    "gain": 40.99124700948596
+  },
+  {
+    "feature": "name_ngram_jaccard",
+    "gain": 38.486486335110385
+  },
+  {
+    "feature": "cand_is_S2",
+    "gain": 37.5404233771842
+  },
+  {
+    "feature": "addr_numeric_set_exact",
+    "gain": 20.832765847444534
+  },
+  {
+    "feature": "token_count_diff",
+    "gain": 19.70714780688286
+  },
+  {
+    "feature": "cand_score_margin",
+    "gain": 16.339970037341118
+  },
+  {
+    "feature": "addr_last_exact",
+    "gain": 14.80097684264183
+  },
+  {
+    "feature": "last_token_exact",
+    "gain": 11.332508906722069
+  },
+  {
+    "feature": "name_contain_rev",
+    "gain": 10.721377623616718
+  },
+  {
+    "feature": "is_domain_r",
+    "gain": 7.460170006379485
+  },
+  {
+    "feature": "name_contain_fwd",
+    "gain": 5.862236596643925
+  },
+  {
+    "feature": "name_digits_equal",
+    "gain": 1.6777307987213135
+  },
+  {
+    "feature": "eff_token_contain_rev",
+    "gain": 1.0404499769210815
+  },
+  {
+    "feature": "name_core_exact",
+    "gain": 0.8562859892845154
+  },
+  {
+    "feature": "is_domain_either",
+    "gain": 0.7143456796184182
+  },
+  {
+    "feature": "addr_exact",
+    "gain": 0.5489861834794283
+  },
+  {
+    "feature": "name_exact",
+    "gain": 0.03368009999394417
+  },
+  {
+    "feature": "name_high_addr_low",
+    "gain": 0.023075100034475327
+  },
+  {
+    "feature": "shared_token_count",
+    "gain": 0.011332350317388773
+  },
+  {
+    "feature": "name_token_dice",
+    "gain": 0.006288270000368357
+  },
+  {
+    "feature": "name_digits_conflict",
+    "gain": 0.0
+  },
+  {
+    "feature": "name_has_digits_both",
+    "gain": 0.0
+  },
+  {
+    "feature": "addr_missing_either",
+    "gain": 0.0
+  },
+  {
+    "feature": "addr_missing_both",
+    "gain": 0.0
+  },
+  {
+    "feature": "name_missing_either",
+    "gain": 0.0
+  },
+  {
+    "feature": "n_fields_comparable",
+    "gain": 0.0
+  },
+  {
+    "feature": "both_high",
+    "gain": 0.0
+  },
+  {
+    "feature": "name_low_addr_high",
+    "gain": 0.0
+  },
+  {
+    "feature": "is_domain_l",
+    "gain": 0.0
+  },
+  {
+    "feature": "eff_token_jaccard",
+    "gain": 0.0
+  },
+  {
+    "feature": "eff_token_contain_fwd",
+    "gain": 0.0
+  },
+  {
+    "feature": "translit_token_jaccard",
+    "gain": 0.0
+  },
+  {
+    "feature": "translit_token_contain",
+    "gain": 0.0
+  },
+  {
+    "feature": "is_top1",
+    "gain": 0.0
+  },
+  {
+    "feature": "group_size",
+    "gain": 0.0
+  },
+  {
+    "feature": "is_mutual_best",
+    "gain": 0.0
+  }
+]

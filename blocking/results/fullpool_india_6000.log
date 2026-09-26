@@ -1,0 +1,17 @@
+[    0.0s] == FULL-POOL SAMPLE — country='india'  n_s1=6,000  K=150 ==
+[    0.0s] sampling S1 uniformly (no ground-truth filter) ...
+[    3.1s]   883,188 S1 rows in india; sampled 6,000
+[    3.1s]   wrote blocking/results/fullpool_india_6000_sampled_ids.txt
+[    5.6s]   s1 partition built: 6,000 rows   RSS=0.23 GiB
+[    5.7s] --- S2: reusing existing partial (476,033 pairs) -> skipping
+[    5.7s] --- S3: loading FULL india partition (no cap) ...
+[   54.5s]   S3 loaded 2,115,547 rows in 48.8s   RSS=1.45 GiB
+[  103.1s]   S3 indexes built in 48.6s   RSS=3.15 GiB
+[  304.6s]   S3 batch 0-1,500  pairs=120,222  202s  RSS=6.27 GiB
+[  498.4s]   S3 batch 1,500-3,000  pairs=241,256  395s  RSS=6.27 GiB
+[  677.8s]   S3 batch 3,000-4,500  pairs=362,340  575s  RSS=6.27 GiB
+[  855.1s]   S3 batch 4,500-6,000  pairs=482,592  752s  RSS=6.27 GiB
+[  856.2s] merging partials and trimming to top-K ...
+[  857.5s] DONE  wrote 899,995 pairs for 6,000 S1 -> blocking/results/fullpool_india_6000_candidate_pairs.long.tsv
+[  857.5s]   S1 with zero candidates: 0
+[  857.5s]   peak RSS: 6.27 GiB

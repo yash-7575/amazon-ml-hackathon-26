@@ -1,0 +1,44 @@
+
+[run] scoring india_fullpool validation groups: 225,000 pairs over 1,500 S1
+[run] eval set: 108 singletons (7.20%), mean true size 3.47, 5,207 true pairs
+[run] candidate recall on this eval set = 4,916/5,207 = 94.41%  <- matcher ceiling
+
+ macroF0.5   tau  tauS   K  rslv  microP  microR  pred/S1  predEmpty  trueEmpty
+   0.92754  0.70  0.60   8  True  0.9708  0.8627     3.08        115        108
+   0.92754  0.70  0.60   8 False  0.9708  0.8627     3.08        115        108
+   0.92737  0.60  0.60   8  True  0.9648  0.8742     3.15        115        108
+   0.92737  0.60  0.60   8 False  0.9648  0.8742     3.15        115        108
+   0.92723  0.70  0.60   6  True  0.9731  0.8542     3.05        115        108
+   0.92723  0.70  0.60   6 False  0.9731  0.8542     3.05        115        108
+   0.92708  0.80  0.60   8  True  0.9773  0.8446     3.00        115        108
+   0.92708  0.80  0.60   8 False  0.9773  0.8446     3.00        115        108
+   0.92699  0.60  0.60   6  True  0.9671  0.8650     3.10        115        108
+   0.92699  0.60  0.60   6 False  0.9671  0.8650     3.10        115        108
+   0.92676  0.80  0.60   6  True  0.9791  0.8373     2.97        115        108
+   0.92676  0.80  0.60   6 False  0.9791  0.8373     2.97        115        108
+   0.92549  0.60  0.60   5  True  0.9714  0.8408     3.00        115        108
+   0.92549  0.60  0.60   5 False  0.9714  0.8408     3.00        115        108
+   0.92543  0.70  0.50   8  True  0.9700  0.8629     3.09        110        108
+
+  46 of 600 settings are within 0.005 of the best (0.92754).
+    tau in [0.50, 0.85]  tau_singleton in [0.40, 0.60]  max_k in [5, 8]
+  conflict resolution: best ON  = 0.92754   best OFF = 0.92754   delta = +0.00000
+
+[run] BEST macro-F0.5 = 0.92754   (AssignConfig(tau=0.7, tau_singleton=0.6, max_k=8, resolve_conflicts=True, always_keep_argmax=True))
+[run] micro P=0.9708 R=0.8627 tp=4,492 fp=135 fn=715
+[run] predicted empty for 115 S1; 108 are truly singletons
+
+[run] breakdown by TRUE group size:
+     T     n_S1   share  mean F0.5
+     0      108   7.20%    0.88889
+     1       80   5.33%    0.84850
+     2      258  17.20%    0.91854
+     3      319  21.27%    0.92315
+     4      309  20.60%    0.94530
+     5      233  15.53%    0.94841
+     6      119   7.93%    0.94918
+     7       55   3.67%    0.94614
+     8       17   1.13%    0.95086
+     9        2   0.13%    0.86207
+
+[run] CONSTANT features on this eval set (4): ['addr_missing_both', 'name_missing_either', 'is_domain_l', 'group_size']

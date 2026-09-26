@@ -1,0 +1,76 @@
+[train] rows train=225,000 val=74,996  S1 train=1,500 val=500
+[train] positives train=5,471 val=1,896
+Training until validation scores don't improve for 100 rounds
+[100]	train's binary_logloss: 0.0016424	train's auc: 0.999991	val's binary_logloss: 0.00457274	val's auc: 0.999805
+[200]	train's binary_logloss: 0.000348568	train's auc: 1	val's binary_logloss: 0.00408366	val's auc: 0.999891
+[300]	train's binary_logloss: 0.000143771	train's auc: 1	val's binary_logloss: 0.00417372	val's auc: 0.999901
+Early stopping, best iteration is:
+[227]	train's binary_logloss: 0.000262617	train's auc: 1	val's binary_logloss: 0.00406229	val's auc: 0.999897
+
+[train] top 20 features by gain:
+          293,723  score_minus_group_mean
+           43,185  addr_contain_rev
+           20,251  addr_token_jaccard
+           14,768  z_score_in_group
+           11,538  retrieval_score
+            6,213  addr_numeric_jaccard
+            4,899  addr_max_idf_shared
+            4,512  cand_score_margin
+            2,201  translit_ratio
+            1,905  n_competitors_for_cand
+            1,867  score_ratio_to_max
+            1,848  name_len_ratio
+            1,513  rank_reverse
+            1,463  mean_field_sim
+            1,186  max_idf_shared
+            1,106  script_match
+            1,079  idf_weighted_overlap
+            1,014  eff_name_ratio
+              958  score_gap_below
+              896  score_margin_to_2nd
+[train] 10 features contributed ZERO gain: ['name_exact', 'name_digits_conflict', 'name_has_digits_both', 'addr_missing_either', 'addr_missing_both', 'name_missing_either', 'both_high', 'name_low_addr_high', 'is_domain_l', 'group_size']
+
+[run] best_iteration=227  val AUC=0.99990
+
+[run] scoring india_capped validation groups: 74,996 pairs over 500 S1
+[run] eval set: 0 singletons (0.00%), mean true size 3.86, 1,932 true pairs
+[run] candidate recall on this eval set = 1,896/1,932 = 98.14%  <- matcher ceiling
+
+ macroF0.5   tau  tauS   K  rslv  microP  microR  pred/S1  predEmpty  trueEmpty
+   0.97257  0.80  0.10   8  True  0.9907  0.9369     3.65          3          0
+   0.97257  0.80  0.20   8  True  0.9907  0.9369     3.65          3          0
+   0.97257  0.80  0.30   8  True  0.9907  0.9369     3.65          3          0
+   0.97257  0.80  0.40   8  True  0.9907  0.9369     3.65          3          0
+   0.97257  0.80  0.50   8  True  0.9907  0.9369     3.65          3          0
+   0.97257  0.80  0.60   8  True  0.9907  0.9369     3.65          3          0
+   0.97234  0.80  0.10   8 False  0.9902  0.9369     3.66          3          0
+   0.97234  0.80  0.20   8 False  0.9902  0.9369     3.66          3          0
+   0.97234  0.80  0.30   8 False  0.9902  0.9369     3.66          3          0
+   0.97234  0.80  0.40   8 False  0.9902  0.9369     3.66          3          0
+   0.97234  0.80  0.50   8 False  0.9902  0.9369     3.66          3          0
+   0.97234  0.80  0.60   8 False  0.9902  0.9369     3.66          3          0
+   0.97214  0.85  0.10   8  True  0.9928  0.9322     3.63          3          0
+   0.97214  0.85  0.20   8  True  0.9928  0.9322     3.63          3          0
+   0.97214  0.85  0.30   8  True  0.9928  0.9322     3.63          3          0
+
+  188 of 600 settings are within 0.005 of the best (0.97257).
+    tau in [0.50, 0.95]  tau_singleton in [0.10, 0.60]  max_k in [5, 8]
+  conflict resolution: best ON  = 0.97257   best OFF = 0.97234   delta = +0.00024
+
+[run] BEST macro-F0.5 = 0.97257   (AssignConfig(tau=0.8, tau_singleton=0.1, max_k=8, resolve_conflicts=True, always_keep_argmax=True))
+[run] micro P=0.9907 R=0.9369 tp=1,810 fp=17 fn=122
+[run] predicted empty for 3 S1; 0 are truly singletons
+
+[run] breakdown by TRUE group size:
+     T     n_S1   share  mean F0.5
+     1       29   5.80%    0.89655
+     2       70  14.00%    0.98231
+     3      120  24.00%    0.97675
+     4      112  22.40%    0.98084
+     5       92  18.40%    0.97337
+     6       51  10.20%    0.97640
+     7       20   4.00%    0.95688
+     8        5   1.00%    1.00000
+     9        1   0.20%    0.97561
+
+[run] CONSTANT features on this eval set (5): ['name_digits_conflict', 'name_has_digits_both', 'addr_missing_both', 'name_missing_either', 'is_domain_l']
