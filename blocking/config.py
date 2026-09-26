@@ -12,7 +12,7 @@ from typing import Optional
 @dataclass(frozen=True)
 class BlockerConfig:
     # --- data ---
-    data_root: str = '/home/yash/Downloads/Amazon-ML-dataset/student_resource/dataset/'
+    data_root: str = '/home/sagemaker-user/amazon-ml-hackathon-26/dataset/'
     split: str = 'train'  # 'train' or 'test'
     output_path: str = '/home/yash/dev/clg/amlc-2026/blocking/candidate_pairs.tsv'
 

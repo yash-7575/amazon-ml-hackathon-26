@@ -22,6 +22,8 @@ candidate_pairs.tsv
 *.tsv.gz
 *.parquet
 
+dataset/
+
 # Local IDE / OS
 .vscode/
 .idea/
