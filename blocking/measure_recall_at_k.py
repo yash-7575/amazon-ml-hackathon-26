@@ -25,6 +25,7 @@ import os
 import random
 import time
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 
@@ -236,30 +237,72 @@ def sweep_partition(
 
     # ---- INDEX BUILD (fixed cost per partition; must be timed separately for
     #      the runtime extrapolation in RUNTIME_ESTIMATE.md) ----
+    # Parallel over the independent builds (name/addr x S2/S3). Bit-identical
+    # indexes to the sequential version; only wall-clock changes. TF-IDF
+    # fitting is CPU-bound and the GIL is released in the heavy C loops.
     t = time.time()
-    name_s2 = _build_name_index(s2, cfg) if s2.n else None
-    name_s3 = _build_name_index(s3, cfg) if s3.n else None
-    addr_s2 = _build_addr_index(s2, cfg) if s2.n else None
-    addr_s3 = _build_addr_index(s3, cfg) if s3.n else None
+    _build_jobs: list[tuple[str, str, PartitionData]] = []
+    if s2.n:
+        _build_jobs.append(('name_s2', 'name', s2))
+        _build_jobs.append(('addr_s2', 'addr', s2))
+    if s3.n:
+        _build_jobs.append(('name_s3', 'name', s3))
+        _build_jobs.append(('addr_s3', 'addr', s3))
+
+    def _build_one(job: tuple[str, str, PartitionData]):
+        key, field, target = job
+        if field == 'name':
+            return key, _build_name_index(target, cfg)
+        return key, _build_addr_index(target, cfg)
+
+    _built: dict = {}
+    if _build_jobs:
+        with ThreadPoolExecutor(max_workers=min(4, len(_build_jobs))) as _ex:
+            for _key, _bundle in _ex.map(_build_one, _build_jobs):
+                _built[_key] = _bundle
+    name_s2 = _built.get('name_s2')
+    name_s3 = _built.get('name_s3')
+    addr_s2 = _built.get('addr_s2')
+    addr_s3 = _built.get('addr_s3')
     index_build_sec = time.time() - t
     print(f'  indexes built ({index_build_sec:.2f}s)', flush=True)
 
     # ---- QUERIES (P1 + P2 + P3) — this is the portion that scales with n_s1 ----
+    # The 4 ranked-list searches are independent (read-only indexes) so they run
+    # in parallel threads. scipy/numpy release the GIL in matmul/argpartition,
+    # so this uses ~4 cores. Outputs are identical to sequential execution.
     t_q = time.time()
 
     t = time.time()
     p1 = _p1_hits(s1, [s2, s3])
     print(f'  P1 hits computed ({time.time()-t:.2f}s)', flush=True)
 
-    t = time.time()
-    p2_s2 = _blocker_ranked_lists(s1, s2, cfg, 'name', k_max, prebuilt=name_s2) if name_s2 else {}
-    p2_s3 = _blocker_ranked_lists(s1, s3, cfg, 'name', k_max, prebuilt=name_s3) if name_s3 else {}
-    print(f'  P2 name ranked lists ({time.time()-t:.2f}s)', flush=True)
+    _query_jobs: list[tuple] = []
+    if name_s2:
+        _query_jobs.append(('p2_s2', s2, 'name', k_max, name_s2))
+    if name_s3:
+        _query_jobs.append(('p2_s3', s3, 'name', k_max, name_s3))
+    if addr_s2:
+        _query_jobs.append(('p3_s2', s2, 'addr', k_max, addr_s2))
+    if addr_s3:
+        _query_jobs.append(('p3_s3', s3, 'addr', k_max, addr_s3))
 
-    t = time.time()
-    p3_s2 = _blocker_ranked_lists(s1, s2, cfg, 'addr', k_max, prebuilt=addr_s2) if addr_s2 else {}
-    p3_s3 = _blocker_ranked_lists(s1, s3, cfg, 'addr', k_max, prebuilt=addr_s3) if addr_s3 else {}
-    print(f'  P3 addr ranked lists ({time.time()-t:.2f}s)', flush=True)
+    def _query_one(job: tuple):
+        key, target, field, kk, pre = job
+        tq = time.time()
+        res = _blocker_ranked_lists(s1, target, cfg, field, kk, prebuilt=pre)
+        return key, res, time.time() - tq
+
+    _ranked: dict = {}
+    if _query_jobs:
+        with ThreadPoolExecutor(max_workers=min(4, len(_query_jobs))) as _ex:
+            for _key, _res, _dt in _ex.map(_query_one, _query_jobs):
+                _ranked[_key] = _res
+                print(f'  {_key} ranked lists ({_dt:.2f}s)', flush=True)
+    p2_s2 = _ranked.get('p2_s2', {})
+    p2_s3 = _ranked.get('p2_s3', {})
+    p3_s2 = _ranked.get('p3_s2', {})
+    p3_s3 = _ranked.get('p3_s3', {})
 
     query_sec = time.time() - t_q
 
