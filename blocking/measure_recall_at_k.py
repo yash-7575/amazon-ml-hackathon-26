@@ -45,13 +45,22 @@ from blocking.measure import load_gt
 # ---------------------------------------------------------------------------
 def _blocker_ranked_lists(
     s1: PartitionData, target: PartitionData, cfg: BlockerConfig,
-    field: str, k_max: int,
+    field: str, k_max: int, prebuilt=None,
 ) -> dict[int, list[tuple[str, float]]]:
     """Return {s1_idx: [(cand_id, score), ...]} sorted by score desc, len <= k_max.
 
     field ∈ {'name','addr'}. Devanagari transliteration aliases are folded into
-    the name index (P4)."""
-    if field == 'name':
+    the name index (P4).
+
+    `prebuilt`: optional (index, ids) tuple to skip index building — lets the
+    caller time build vs query separately.
+    """
+    if prebuilt is not None:
+        # unpack the pre-built index bundle (name: (index, ids, _mask); addr: (index, ids))
+        index = prebuilt[0]
+        idx_ids = prebuilt[1]
+        docs = s1.name_doc if field == 'name' else s1.addr_doc
+    elif field == 'name':
         # _build_name_index returns (index, ids, translit_mask). The mask is used
         # by the main pipeline to tag hits as P2 vs P4; the K-sweep does not
         # differentiate them (P4 aliases share the same target id), so we drop it.
@@ -225,22 +234,34 @@ def sweep_partition(
 
     k_max = max(k_sweep)
 
-    # ---- P1 (exact) — no ranking, just membership ----
+    # ---- INDEX BUILD (fixed cost per partition; must be timed separately for
+    #      the runtime extrapolation in RUNTIME_ESTIMATE.md) ----
+    t = time.time()
+    name_s2 = _build_name_index(s2, cfg) if s2.n else None
+    name_s3 = _build_name_index(s3, cfg) if s3.n else None
+    addr_s2 = _build_addr_index(s2, cfg) if s2.n else None
+    addr_s3 = _build_addr_index(s3, cfg) if s3.n else None
+    index_build_sec = time.time() - t
+    print(f'  indexes built ({index_build_sec:.2f}s)', flush=True)
+
+    # ---- QUERIES (P1 + P2 + P3) — this is the portion that scales with n_s1 ----
+    t_q = time.time()
+
     t = time.time()
     p1 = _p1_hits(s1, [s2, s3])
     print(f'  P1 hits computed ({time.time()-t:.2f}s)', flush=True)
 
-    # ---- P2 (name) ranked lists per source ----
     t = time.time()
-    p2_s2 = _blocker_ranked_lists(s1, s2, cfg, 'name', k_max) if s2.n else {}
-    p2_s3 = _blocker_ranked_lists(s1, s3, cfg, 'name', k_max) if s3.n else {}
+    p2_s2 = _blocker_ranked_lists(s1, s2, cfg, 'name', k_max, prebuilt=name_s2) if name_s2 else {}
+    p2_s3 = _blocker_ranked_lists(s1, s3, cfg, 'name', k_max, prebuilt=name_s3) if name_s3 else {}
     print(f'  P2 name ranked lists ({time.time()-t:.2f}s)', flush=True)
 
-    # ---- P3 (addr) ranked lists per source ----
     t = time.time()
-    p3_s2 = _blocker_ranked_lists(s1, s2, cfg, 'addr', k_max) if s2.n else {}
-    p3_s3 = _blocker_ranked_lists(s1, s3, cfg, 'addr', k_max) if s3.n else {}
+    p3_s2 = _blocker_ranked_lists(s1, s2, cfg, 'addr', k_max, prebuilt=addr_s2) if addr_s2 else {}
+    p3_s3 = _blocker_ranked_lists(s1, s3, cfg, 'addr', k_max, prebuilt=addr_s3) if addr_s3 else {}
     print(f'  P3 addr ranked lists ({time.time()-t:.2f}s)', flush=True)
+
+    query_sec = time.time() - t_q
 
     # ---- Per-K union: for each S1, take top-K from EACH ranked list, union with P1 ----
     def _topk_ids(ranked: dict[int, list[tuple[str, float]]], i: int, K: int) -> set[str]:
@@ -266,6 +287,8 @@ def sweep_partition(
         'truth_in_script': total_is,
         'truth_cross_script': total_cs,
         'load_sec': round(t_load, 2),
+        'index_build_sec': round(index_build_sec, 2),
+        'query_sec': round(query_sec, 2),
         'k_sweep': list(k_sweep),
     }
 

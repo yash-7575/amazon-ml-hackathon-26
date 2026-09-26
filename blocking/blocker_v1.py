@@ -342,15 +342,26 @@ def rescore_and_union(
         cos_addr[mask_s3] = _cos_for(addr_index_s3, s3_cids, s3_q_addr)
 
     combined = cfg.rescore_w_name * cos_name + cfg.rescore_w_addr * cos_addr
-    # Recall-preserving guard: never let the rescore RANK a pair lower than the
-    # raw single-blocker score it earned. Concretely, we take the max of:
-    #   - the weighted combined score
-    #   - the raw name-blocker score (P1/P2/P4 hits keep their standing)
-    #   - a boosted raw address-blocker score (P3 hits keep their standing)
-    # This preserves the union recall through the top-K trimming — the previous
-    # version dropped ~4pp of true pairs on the India dry run because address-only
-    # hits with strong addr_cos but zero name_cos were outranked by name-strong
-    # distractors. The fix is documented in DESIGN.md #rescore.
+    # Weighted raw-score floor. Prevents the combined score from ranking a pair
+    # strictly below either raw signal after the weights are applied.
+    #
+    # This is imperfect: on the India smoke test the final top-K recall
+    # (94.30% @ K=50) lags the P1+P2+P3 union recall (98.27%) by ~4pp. The
+    # ranking is where true pairs get displaced by name-strong distractors, not
+    # the union.
+    #
+    # DO NOT "fix" this by dropping the weight multiplication (using
+    # np.maximum(pair_raw, cos_addr) unscaled). It was tested and measured
+    # WORSE — India smoke final top-K dropped to 93.30% (−1 pp), cross-script
+    # to 73.68% (−2.7 pp). Cause: real cos_name values run 0.5–0.95, real
+    # cos_addr values run 0.10–0.35 (TF-IDF cosine, not Jaccard). Unweighted
+    # max promotes the field with higher dynamic range — always names — so
+    # name-strong distractors (per FINDING 4, generic names are abundant)
+    # get bigger score boosts than address-only true pairs. Net: fewer true
+    # pairs survive the top-K trim.
+    #
+    # The correct long-term fix is score calibration / rank-fusion (RRF); the
+    # short-term mitigation is raising final_top_k so the trim discards less.
     raw_floor = np.maximum(pair_raw * cfg.rescore_w_name,
                            cos_addr * cfg.rescore_w_addr)
     combined = np.maximum(combined, raw_floor)

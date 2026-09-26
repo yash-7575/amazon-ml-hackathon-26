@@ -1,0 +1,28 @@
+== SMOKE TEST — country='india', sample_s1=2,000 ==
+[1/5] loading ground truth ...
+[2/5] sampling S1 ...
+   sampled 2,000 S1 rows (of 833,837 in gt for india)
+[3/5] loading S1/S2/S3 (S2/S3 capped at 60,000/60,000) ...
+   loaded s1=2,000  s2=60,000  s3=60,000   in 21.9s
+[4/5] running stages ...
+   P1 done  (0.17s)  s1 with any P1 hit = 1,766
+   indexes built (3.29s)
+   P2 done  (6.13s)  s1 with any P2 hit = 2,000
+   P3 done  (3.81s)  s1 with any P3 hit = 2,000
+  [debug raw_floor] i=100 src=S2 pair_raw=0.310 cos_name=0.062 cos_addr=0.310 combined_pre=0.161
+  [debug raw_floor] i=101 src=S2 pair_raw=0.295 cos_name=0.000 cos_addr=0.295 combined_pre=0.118
+  [debug raw_floor] i=102 src=S2 pair_raw=0.274 cos_name=0.015 cos_addr=0.274 combined_pre=0.118
+  [debug raw_floor] i=103 src=S2 pair_raw=0.272 cos_name=0.049 cos_addr=0.272 combined_pre=0.138
+  [debug raw_floor] i=104 src=S2 pair_raw=0.272 cos_name=0.000 cos_addr=0.272 combined_pre=0.109
+   rescore  (7.12s)  s1 with any final hit = 2,000
+[5/5] recall ...
+   recall P1            : 3,046/7,497 = 40.63%
+   recall P1+P2         : 5,626/7,497 = 75.04%
+   recall P1+P2+P3      : 7,367/7,497 = 98.27%
+   recall final top-K   : 6,995/7,497 = 93.30%
+
+   truth pairs in scope   : 7,497
+   |cand_final|           : 100,000
+   |cand_final| per S1    : 50.00
+   peak RSS               : 4370.8 MiB
+   cross-script recall    : 571/775 = 73.68%

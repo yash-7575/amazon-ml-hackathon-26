@@ -75,7 +75,13 @@ class BlockerConfig:
     # missing / dirty data (3.3% empty; addr Jaccard p10=0.30 vs name p10=0.174).
     rescore_w_name: float = 0.6
     rescore_w_addr: float = 0.4
-    final_top_k: int = 50   # per S1 entity, after union + rescore
+    # K=50 measured 94.30% on India smoke (98.27% union) — 3.97pp gap from
+    # rescore ranking, not blocking. K sweep {50,100,150} on the same smoke:
+    # K=100 -> 95.37%, K=150 -> 98.19% (within 0.08pp of union). Picked K=150
+    # as the smallest K within ~1pp of union. Cost: 3x feature-stage pairs vs
+    # K=50. Union caps around ~200/S1 so K=150 is nearly all of it. See
+    # results/smoke_test_india_2000_60k_ksweep.log.
+    final_top_k: int = 150   # per S1 entity, after union + rescore
 
     # --- Determinism / I/O ---
     seed: int = 20260926
