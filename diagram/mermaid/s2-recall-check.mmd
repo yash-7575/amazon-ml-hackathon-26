@@ -1,0 +1,30 @@
+---
+title: Section 2 — Candidate Recall Check
+---
+flowchart TD
+  PAIRS["<b>candidate_pairs.tsv</b>"]
+  GT["<b>GROUND TRUTH</b><br/>Known correct mappings<br/><code>S1-001 → S2-104 ✓</code>"]
+  CHECK1{"<b>GROUND TRUTH CHECK #1</b><br/>Candidate Recall Check<br/>Is the true pair present in candidate_pairs.tsv?"}
+  SUFF["<b>Candidate generation is sufficient</b><br/>→ continue to pairwise features"]
+  MISSING["<b>True pair missing</b><br/>recall ceiling lowered permanently"]
+  IMPROVEB["<b>Improve blocking / filtering</b>"]
+  REGEN["<b>Regenerate candidate_pairs_v2.tsv</b>"]
+  NOTE["<b>IMPORTANT</b><br/>Ground truth NEVER deletes candidates.<br/>It only answers <i>was the true pair retrieved?</i><br/>ALL candidates stay available to the model."]
+  PAIRS --> CHECK1
+  GT --> CHECK1
+  CHECK1 -->|YES| SUFF
+  CHECK1 -->|NO| MISSING --> IMPROVEB --> REGEN
+  REGEN -.->|"↺ back to candidate generation"| PAIRS
+  SUFF -.- NOTE
+  classDef file fill:#60a5fa,stroke:#1e3a5f,color:#12283f
+  classDef decision fill:#fef3c7,stroke:#b45309,color:#78350f
+  classDef ok fill:#a7f3d0,stroke:#047857,color:#065f46
+  classDef err fill:#fecaca,stroke:#b91c1c,color:#7f1d1d
+  classDef warn fill:#fed7aa,stroke:#c2410c,color:#7c2d12
+  classDef note fill:#ecfdf5,stroke:#047857,stroke-dasharray:6 4,color:#065f46
+  class PAIRS file
+  class CHECK1 decision
+  class GT,SUFF ok
+  class MISSING err
+  class IMPROVEB,REGEN warn
+  class NOTE note

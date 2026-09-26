@@ -1,0 +1,19 @@
+# Exact commands used to produce the files in this directory.
+
+# Smoke test (2000 India S1 × 60k S2 × 60k S3). ~65s, 4.3 GiB peak RSS.
+# -> smoke_test_india_2000_60k.log
+PYTHONPATH=. /usr/bin/time -v python3 blocking/smoke_test.py india 2000 60000 60000 \
+    2>&1 | tee blocking/results/smoke_test_india_2000_60k.log
+
+# Recall@K sweep, 3k S1 stratified across India+US, 80k reservoir-sampled distractors
+# per source per country. ~118s wall, 3.5 GiB peak RSS.
+# K sweep = {10, 20, 50, 100, 200}.
+# -> recall_at_k_sample3k_cap80k.{json,log}
+PYTHONPATH=. /usr/bin/time -v python3 blocking/measure_recall_at_k.py \
+    --sample 3000 --s2s3-cap 80000 --k 10,20,50,100,200 \
+    --out blocking/results/recall_at_k_sample3k_cap80k.json \
+    2>&1 | tee blocking/results/recall_at_k_sample3k_cap80k.log
+
+# Config used: default blocking.config.BlockerConfig(split='train').
+# Data: /home/yash/Downloads/Amazon-ML-dataset/student_resource/dataset/train/
+# Seed: 20260926

@@ -1,0 +1,26 @@
+---
+title: Section 3 — Pairwise Features to ML Model
+---
+flowchart TD
+  FEAT["<b>PAIRWISE FEATURE ENGINEERING</b><br/>• Name similarity · Address similarity<br/>• Jaccard · Levenshtein / edit<br/>• TF-IDF cosine · Char n-gram overlap<br/>• City match · Postal-code match<br/>• Phone similarity · Country match ← constant, drop"]
+  VEC["<b>FEATURE VECTOR</b><br/><code>S1-001 → S2-104  [0.91, 0.87, 0.76, 0.94, 1, ...]<br/>S1-001 → S2-981  [0.22, 0.10, 0.08, 0.31, 0, ...]</code>"]
+  MODEL["<b>ML MATCHING MODEL</b><br/>XGBoost / LightGBM"]
+  PM["<b>P(match)</b><br/><code>S1-001 → S2-104  0.95<br/>S1-001 → S2-981  0.18<br/>S1-001 → S3-442  0.61</code>"]
+  THRESH{"<b>THRESHOLD</b><br/>P ≥ t ?<br/>tuned on macro-F0.5"}
+  MATCH["<b>MATCH</b><br/>S1-001 → S2-104"]
+  NOMATCH["<b>NO MATCH</b><br/>S1-001 → S2-981"]
+  FEAT --> VEC --> MODEL --> PM --> THRESH
+  THRESH -->|"P ≥ t"| MATCH
+  THRESH -->|"P &lt; t"| NOMATCH
+  classDef flow fill:#93c5fd,stroke:#1e3a5f,color:#1e3a5f
+  classDef ev fill:#1e293b,stroke:#0f172a,color:#22c55e
+  classDef decision fill:#fef3c7,stroke:#b45309,color:#78350f
+  classDef ok fill:#a7f3d0,stroke:#047857,color:#065f46
+  classDef err fill:#fecaca,stroke:#b91c1c,color:#7f1d1d
+  classDef model fill:#ddd6fe,stroke:#6d28d9,stroke-width:3px,color:#4c1d95
+  class FEAT flow
+  class VEC,PM ev
+  class THRESH decision
+  class MATCH ok
+  class NOMATCH err
+  class MODEL model

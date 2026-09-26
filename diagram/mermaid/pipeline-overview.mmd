@@ -1,0 +1,68 @@
+---
+title: Entity Matching Pipeline — Overview
+---
+flowchart TD
+  RAW["<b>RAW DATA</b><br/>S1 + S2/S3 records"]
+  NORM["<b>NORMALIZATION &amp; FILTERING</b><br/>name · address · city · country · postcode"]
+  BLOCK["<b>CANDIDATE GENERATION / BLOCKING</b><br/>name sim · address sim · TF-IDF/BM25 · ANN<br/>partition by country"]
+  PAIRS["<b>candidate_pairs.tsv</b>"]
+
+  CHECK1{"<b>GROUND TRUTH CHECK #1</b><br/>Is the true pair in candidate_pairs.tsv?"}
+  SUFF["Candidate generation sufficient"]
+  MISSING["True pair missing"]
+  IMPROVEB["Improve blocking / filtering"]
+  REGEN["Regenerate candidate_pairs_v2.tsv"]
+
+  FEAT["<b>PAIRWISE FEATURES</b><br/>Jaccard · Levenshtein · TF-IDF cosine<br/>city · postcode · phone"]
+  VEC["<b>FEATURE VECTOR</b><br/>[0.91, 0.87, 0.76, 0.94, 1, 1, ...]"]
+  MODEL["<b>ML MATCHING MODEL</b><br/>XGBoost / LightGBM"]
+  PM["<b>P(match)</b><br/>S2-104 → 0.95 · S2-981 → 0.18"]
+  THRESH{"<b>THRESHOLD</b><br/>P ≥ t ?"}
+  MATCH["MATCH"]
+  NOMATCH["NO MATCH"]
+
+  CHECK2{"<b>GROUND TRUTH CHECK #2</b><br/>Did the model pick the correct pair?"}
+  METRICS["<b>VALIDATION METRICS</b><br/>Precision · Recall · macro-F0.5"]
+  POOR["Poor validation score"]
+  IMPROVE2["Improve features / model / threshold"]
+  RETRAIN["Retrain model"]
+
+  TEST["<b>UNSEEN TEST DATA</b><br/>ground truth hidden 🔒"]
+  TPIPE["<b>Same normalize → block → features</b>"]
+  TMODEL["<b>TRAINED MODEL</b><br/>frozen weights, fixed threshold"]
+  ASSIGN["<b>One-to-one assignment</b><br/>each S2/S3 id used at most once"]
+  RESULTS["<b>matching_results.tsv</b>"]
+  SUBMIT(["<b>SUBMISSION</b>"])
+
+  RAW --> NORM --> BLOCK --> PAIRS --> CHECK1
+  CHECK1 -->|YES| SUFF --> FEAT
+  CHECK1 -->|NO| MISSING --> IMPROVEB --> REGEN
+  REGEN -.->|"↺ improvement loop"| BLOCK
+
+  FEAT --> VEC --> MODEL --> PM --> THRESH
+  THRESH -->|"P ≥ t"| MATCH --> CHECK2
+  THRESH -->|"P &lt; t"| NOMATCH
+  CHECK2 --> METRICS --> POOR --> IMPROVE2 --> RETRAIN
+  RETRAIN -.->|"↺ retrain loop"| MODEL
+  IMPROVE2 -.->|"↺ back to blocking"| BLOCK
+
+  MODEL -.->|"trained artifact"| TMODEL
+  TEST --> TPIPE --> TMODEL --> ASSIGN --> RESULTS --> SUBMIT
+
+  classDef start fill:#fed7aa,stroke:#c2410c,color:#7c2d12
+  classDef flow fill:#93c5fd,stroke:#1e3a5f,color:#1e3a5f
+  classDef file fill:#60a5fa,stroke:#1e3a5f,color:#12283f
+  classDef decision fill:#fef3c7,stroke:#b45309,color:#78350f
+  classDef ok fill:#a7f3d0,stroke:#047857,color:#065f46
+  classDef err fill:#fecaca,stroke:#b91c1c,color:#7f1d1d
+  classDef warn fill:#fed7aa,stroke:#c2410c,color:#7c2d12
+  classDef model fill:#ddd6fe,stroke:#6d28d9,stroke-width:3px,color:#4c1d95
+
+  class RAW,TEST start
+  class NORM,BLOCK,FEAT,VEC,PM,METRICS,TPIPE flow
+  class PAIRS,RESULTS file
+  class CHECK1,THRESH,CHECK2 decision
+  class SUFF,MATCH,ASSIGN,SUBMIT ok
+  class MISSING,NOMATCH,POOR err
+  class IMPROVEB,REGEN,IMPROVE2,RETRAIN warn
+  class MODEL,TMODEL model

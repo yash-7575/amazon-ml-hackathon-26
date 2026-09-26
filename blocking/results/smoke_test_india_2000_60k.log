@@ -1,0 +1,46 @@
+== SMOKE TEST — country='india', sample_s1=2,000 ==
+[1/5] loading ground truth ...
+[2/5] sampling S1 ...
+   sampled 2,000 S1 rows (of 833,837 in gt for india)
+[3/5] loading S1/S2/S3 (S2/S3 capped at 60,000/60,000) ...
+   loaded s1=2,000  s2=60,000  s3=60,000   in 23.9s
+[4/5] running stages ...
+   P1 done  (0.18s)  s1 with any P1 hit = 1,766
+   indexes built (3.20s)
+   P2 done  (6.75s)  s1 with any P2 hit = 2,000
+   P3 done  (3.86s)  s1 with any P3 hit = 2,000
+   rescore  (8.46s)  s1 with any final hit = 2,000
+[5/5] recall ...
+   recall P1            : 3,046/7,497 = 40.63%
+   recall P1+P2         : 5,626/7,497 = 75.04%
+   recall P1+P2+P3      : 7,367/7,497 = 98.27%
+   recall final top-K   : 7,070/7,497 = 94.30%
+
+   truth pairs in scope   : 7,497
+   |cand_final|           : 100,000
+   |cand_final| per S1    : 50.00
+   peak RSS               : 4288.0 MiB
+   cross-script recall    : 592/775 = 76.39%
+	Command being timed: "python3 blocking/smoke_test.py india 2000 60000 60000"
+	User time (seconds): 57.67
+	System time (seconds): 8.86
+	Percent of CPU this job got: 102%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:04.71
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 4390884
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 143194
+	Minor (reclaiming a frame) page faults: 3635816
+	Voluntary context switches: 1737
+	Involuntary context switches: 1941
+	Swaps: 0
+	File system inputs: 2855408
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

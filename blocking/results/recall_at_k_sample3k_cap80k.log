@@ -1,0 +1,125 @@
+[measure] loading ground truth ...
+[measure] 2,083,574 S1 entities have ground truth
+[measure] stratified sample = 3,000 S1 rows
+[measure] picked 3,000 S1 rows
+
+[measure] === partition 'india' (S1 rows = 883,188) ===
+  loaded s1=1,201  s2=82,181  s3=82,266   (28.1s)
+  scope s1 = 1,201
+  truth pairs (in-country): 4,447  (in-script 4,071 + cross-script 376)
+  P1 hits computed (0.79s)
+  P2 name ranked lists (8.81s)
+  P3 addr ranked lists (5.89s)
+
+[measure] === partition 'us' (S1 rows = 1,323,633) ===
+  loaded s1=1,799  s2=83,170  s3=83,506   (28.9s)
+  scope s1 = 1,799
+  truth pairs (in-country): 6,676  (in-script 6,676 + cross-script 0)
+  P1 hits computed (0.22s)
+  P2 name ranked lists (12.76s)
+  P3 addr ranked lists (7.48s)
+
+==============================================================================
+                               RECALL@K REPORT                                
+==============================================================================
+
+Partition: india  (scope S1=1,201, truth=4,447, in-script=4,071, cross-script=376)
+  peak RSS = 3492.2 MiB, elapsed = 44.17s
+      K  strategy      recall   in_scr    x_scr       cands    per_S1
+  -------------------------------------------------------------------
+     10  P2            71.60%    78.09     1.33      24,000     19.98
+     10  P1+P2         71.64%    78.14     1.33      24,020     20.00
+     10  P1+P2+P3      96.65%    97.37    88.83      45,207     37.64
+     20  P2            73.91%    80.55     2.13      48,002     39.97
+     20  P1+P2         73.96%    80.59     2.13      48,011     39.98
+     20  P1+P2+P3      97.44%    98.03    90.96      93,029     77.46
+     50  P2            75.98%    82.71     3.19     119,901     99.83
+     50  P1+P2         76.03%    82.76     3.19     119,905     99.84
+     50  P1+P2+P3      98.45%    98.75    95.21     236,676    197.07
+    100  P2            77.63%    84.38     4.52     239,726    199.61
+    100  P1+P2         77.63%    84.38     4.52     239,728    199.61
+    100  P1+P2+P3      98.94%    99.12    97.07     476,105    396.42
+    200  P2            79.15%    85.97     5.32     478,946    398.79
+    200  P1+P2         79.15%    85.97     5.32     478,946    398.79
+    200  P1+P2+P3      99.28%    99.41    97.87     954,252    794.55
+
+  Marginal of +P3 over P1+P2 (recall points added):
+    K= 10:   71.64%  ->   96.65%   (+25.01 pp)
+    K= 20:   73.96%  ->   97.44%   (+23.48 pp)
+    K= 50:   76.03%  ->   98.45%   (+22.42 pp)
+    K=100:   77.63%  ->   98.94%   (+21.32 pp)
+    K=200:   79.15%  ->   99.28%   (+20.13 pp)
+
+Partition: us  (scope S1=1,799, truth=6,676, in-script=6,676, cross-script=0)
+  peak RSS = 3492.2 MiB, elapsed = 50.69s
+      K  strategy      recall   in_scr    x_scr       cands    per_S1
+  -------------------------------------------------------------------
+     10  P2            87.81%    87.81      -        35,980     20.00
+     10  P1+P2         87.96%    87.96      -        36,391     20.23
+     10  P1+P2+P3      98.67%    98.67      -        67,115     37.31
+     20  P2            90.94%    90.94      -        71,960     40.00
+     20  P1+P2         90.94%    90.94      -        72,026     40.04
+     20  P1+P2+P3      99.28%    99.28      -       138,369     76.91
+     50  P2            94.41%    94.41      -       179,900    100.00
+     50  P1+P2         94.41%    94.41      -       179,904    100.00
+     50  P1+P2+P3      99.72%    99.72      -       353,689    196.60
+    100  P2            96.03%    96.03      -       359,800    200.00
+    100  P1+P2         96.03%    96.03      -       359,801    200.00
+    100  P1+P2+P3      99.85%    99.85      -       712,904    396.28
+    200  P2            97.30%    97.30      -       719,600    400.00
+    200  P1+P2         97.30%    97.30      -       719,600    400.00
+    200  P1+P2+P3      99.96%    99.96      -     1,430,663    795.25
+
+  Marginal of +P3 over P1+P2 (recall points added):
+    K= 10:   87.96%  ->   98.67%   (+10.71 pp)
+    K= 20:   90.94%  ->   99.28%   (+ 8.34 pp)
+    K= 50:   94.41%  ->   99.72%   (+ 5.30 pp)
+    K=100:   96.03%  ->   99.85%   (+ 3.82 pp)
+    K=200:   97.30%  ->   99.96%   (+ 2.65 pp)
+
+==============================================================================
+                      AGGREGATE (sum across partitions)                       
+==============================================================================
+      K  strategy      recall   in_scr    x_scr         cands
+  -----------------------------------------------------------
+     10  P2            81.33%    84.13     1.33        59,980
+     10  P1+P2         81.43%    84.24     1.33        60,411
+     10  P1+P2+P3      97.86%    98.18    88.83       112,322
+     20  P2            84.13%    87.00     2.13       119,962
+     20  P1+P2         84.15%    87.02     2.13       120,037
+     20  P1+P2+P3      98.54%    98.81    90.96       231,398
+     50  P2            87.04%    89.98     3.19       299,801
+     50  P1+P2         87.06%    90.00     3.19       299,809
+     50  P1+P2+P3      99.21%    99.35    95.21       590,365
+    100  P2            88.67%    91.62     4.52       599,526
+    100  P1+P2         88.67%    91.62     4.52       599,529
+    100  P1+P2+P3      99.49%    99.57    97.07     1,189,009
+    200  P2            90.05%    93.01     5.32     1,198,546
+    200  P1+P2         90.05%    93.01     5.32     1,198,546
+    200  P1+P2+P3      99.69%    99.75    97.87     2,384,915
+
+[measure] overall peak RSS = 3492.2 MiB
+[measure] wrote blocking/results/recall_at_k_sample3k_cap80k.json
+	Command being timed: "python3 blocking/measure_recall_at_k.py --sample 3000 --s2s3-cap 80000 --k 10,20,50,100,200 --out blocking/results/recall_at_k_sample3k_cap80k.json"
+	User time (seconds): 100.50
+	System time (seconds): 19.21
+	Percent of CPU this job got: 101%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:57.77
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 3576052
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 413942
+	Minor (reclaiming a frame) page faults: 6103831
+	Voluntary context switches: 1634
+	Involuntary context switches: 3944
+	Swaps: 0
+	File system inputs: 6721896
+	File system outputs: 24
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

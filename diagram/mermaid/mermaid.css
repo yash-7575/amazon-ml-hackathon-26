@@ -1,0 +1,4 @@
+/* left-align the evidence/code blocks so TSV columns line up */
+.nodeLabel code, .nodeLabel p code { display: block; text-align: left; white-space: pre; }
+.nodeLabel { line-height: 1.45; }
+.edgeLabel { font-size: 13px; }

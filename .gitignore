@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtualenv
+.venv/
+venv/
+env/
+
+# Node (diagram/mermaid tooling)
+node_modules/
+
+# Datasets — raw, cached, and derived
+# Raw data lives outside repo at ~/Downloads/Amazon-ML-dataset/; nothing to ignore there.
+# Derived artifacts we don't want to push:
+eda/pairs.csv
+candidate_pairs.tsv
+*.tsv.gz
+*.parquet
+
+# Local IDE / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# Notebook checkpoints
+.ipynb_checkpoints/

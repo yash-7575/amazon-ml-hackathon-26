@@ -1,0 +1,23 @@
+---
+title: Section 1 — Data to Candidate Generation
+---
+flowchart TD
+  RAW["<b>RAW DATA</b><br/>S1 + S2/S3 records"]
+  RAWEV["<code>entity_id  business_name           country<br/>S1-001     Orelee's Barbershop     US<br/>S2-104     Orelee Barber Shop Inc  US<br/>S3-442     राम मार्केटिंग प्रा लि           India</code>"]
+  NORM["<b>NORMALIZATION &amp; FILTERING</b><br/>• Name normalization — Inc / Ltd / Pvt / SARL<br/>• Address normalization — Rd→Road, landmarks<br/>• Missing values — 3.3% of addresses empty<br/>• City / Country / Postcode normalization<br/>• Unicode by CATEGORY, not word-class"]
+  BLOCK["<b>CANDIDATE GENERATION / BLOCKING</b><br/>• Name similarity · Address similarity<br/>• City / Postcode keys · TF-IDF / BM25<br/>• Char n-gram + ANN<br/>• Partition by COUNTRY first"]
+  WHY["<b>Why a union of blockers?</b><br/>14.8% of true pairs share NO name token.<br/>96.3% of those have address Jaccard &gt; 0.2."]
+  PAIRS["<b>candidate_pairs_v1.tsv</b>"]
+  PAIRSEV["<code>source1_entity_id  candidate_entity_id<br/>S1-001             S2-104<br/>S1-001             S2-981<br/>S1-001             S3-442<br/>S1-001             S3-883</code>"]
+  RAW --> RAWEV --> NORM --> BLOCK --> PAIRS --> PAIRSEV
+  BLOCK -.- WHY
+  classDef start fill:#fed7aa,stroke:#c2410c,color:#7c2d12
+  classDef flow fill:#93c5fd,stroke:#1e3a5f,color:#1e3a5f
+  classDef file fill:#60a5fa,stroke:#1e3a5f,color:#12283f
+  classDef ev fill:#1e293b,stroke:#0f172a,color:#22c55e
+  classDef note fill:#ecfdf5,stroke:#047857,stroke-dasharray:6 4,color:#065f46
+  class RAW start
+  class NORM,BLOCK flow
+  class PAIRS file
+  class RAWEV,PAIRSEV ev
+  class WHY note

@@ -1,0 +1,8 @@
+# blocker_v1 dependencies. All are already in the project venv EXCEPT the optional ones.
+numpy>=1.26
+scipy>=1.11
+scikit-learn>=1.4
+Unidecode>=1.3
+
+# Optional — better Devanagari romanization (falls back to Unidecode if absent).
+# indic-transliteration>=2.3

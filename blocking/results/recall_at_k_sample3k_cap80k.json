@@ -1,0 +1,288 @@
+{
+  "k_sweep": [
+    10,
+    20,
+    50,
+    100,
+    200
+  ],
+  "sample_size_requested": 3000,
+  "sample_size_actual": 3000,
+  "s2s3_cap": 80000,
+  "only_country": null,
+  "peak_rss_mib_overall": 3492.2,
+  "partitions": [
+    {
+      "country": "india",
+      "n_s1_scope": 1201,
+      "n_s2": 82181,
+      "n_s3": 82266,
+      "truth_pairs": 4447,
+      "truth_in_script": 4071,
+      "truth_cross_script": 376,
+      "load_sec": 28.09,
+      "k_sweep": [
+        10,
+        20,
+        50,
+        100,
+        200
+      ],
+      "per_k": {
+        "10": {
+          "P2": {
+            "recall": 0.7159883067236339,
+            "recall_in_script": 0.7808892164087448,
+            "recall_cross_script": 0.013297872340425532,
+            "candidates": 24000,
+            "per_s1": 19.983347210657787
+          },
+          "P1+P2": {
+            "recall": 0.7164380481223297,
+            "recall_in_script": 0.7813804961925817,
+            "recall_cross_script": 0.013297872340425532,
+            "candidates": 24020,
+            "per_s1": 20.0
+          },
+          "P1+P2+P3": {
+            "recall": 0.9664942657971666,
+            "recall_in_script": 0.9737165315647262,
+            "recall_cross_script": 0.8882978723404256,
+            "candidates": 45207,
+            "per_s1": 37.64113238967527
+          }
+        },
+        "20": {
+          "P2": {
+            "recall": 0.739149988756465,
+            "recall_in_script": 0.8054532056005895,
+            "recall_cross_script": 0.02127659574468085,
+            "candidates": 48002,
+            "per_s1": 39.96835970024979
+          },
+          "P1+P2": {
+            "recall": 0.7395997301551608,
+            "recall_in_script": 0.8059444853844264,
+            "recall_cross_script": 0.02127659574468085,
+            "candidates": 48011,
+            "per_s1": 39.97585345545379
+          },
+          "P1+P2+P3": {
+            "recall": 0.9743647402743423,
+            "recall_in_script": 0.9803488086465242,
+            "recall_cross_script": 0.9095744680851063,
+            "candidates": 93029,
+            "per_s1": 77.45961698584513
+          }
+        },
+        "50": {
+          "P2": {
+            "recall": 0.7598380930964695,
+            "recall_in_script": 0.8270695160894129,
+            "recall_cross_script": 0.031914893617021274,
+            "candidates": 119901,
+            "per_s1": 99.83430474604496
+          },
+          "P1+P2": {
+            "recall": 0.7602878344951652,
+            "recall_in_script": 0.8275607958732498,
+            "recall_cross_script": 0.031914893617021274,
+            "candidates": 119905,
+            "per_s1": 99.8376353039134
+          },
+          "P1+P2+P3": {
+            "recall": 0.9844839217449967,
+            "recall_in_script": 0.9874723655121592,
+            "recall_cross_script": 0.9521276595744681,
+            "candidates": 236676,
+            "per_s1": 197.06577851790175
+          }
+        },
+        "100": {
+          "P2": {
+            "recall": 0.7762536541488644,
+            "recall_in_script": 0.8437730287398674,
+            "recall_cross_script": 0.04521276595744681,
+            "candidates": 239726,
+            "per_s1": 199.6053288925895
+          },
+          "P1+P2": {
+            "recall": 0.7762536541488644,
+            "recall_in_script": 0.8437730287398674,
+            "recall_cross_script": 0.04521276595744681,
+            "candidates": 239728,
+            "per_s1": 199.60699417152372
+          },
+          "P1+P2+P3": {
+            "recall": 0.9894310771306499,
+            "recall_in_script": 0.9911569638909359,
+            "recall_cross_script": 0.9707446808510638,
+            "candidates": 476105,
+            "per_s1": 396.4238134887594
+          }
+        },
+        "200": {
+          "P2": {
+            "recall": 0.7915448617045199,
+            "recall_in_script": 0.8597396217145664,
+            "recall_cross_script": 0.05319148936170213,
+            "candidates": 478946,
+            "per_s1": 398.789342214821
+          },
+          "P1+P2": {
+            "recall": 0.7915448617045199,
+            "recall_in_script": 0.8597396217145664,
+            "recall_cross_script": 0.05319148936170213,
+            "candidates": 478946,
+            "per_s1": 398.789342214821
+          },
+          "P1+P2+P3": {
+            "recall": 0.992804137620868,
+            "recall_in_script": 0.9941046425939573,
+            "recall_cross_script": 0.9787234042553191,
+            "candidates": 954252,
+            "per_s1": 794.5478767693588
+          }
+        }
+      },
+      "peak_rss_mib": 3492.2,
+      "elapsed_sec": 44.17
+    },
+    {
+      "country": "us",
+      "n_s1_scope": 1799,
+      "n_s2": 83170,
+      "n_s3": 83506,
+      "truth_pairs": 6676,
+      "truth_in_script": 6676,
+      "truth_cross_script": 0,
+      "load_sec": 28.93,
+      "k_sweep": [
+        10,
+        20,
+        50,
+        100,
+        200
+      ],
+      "per_k": {
+        "10": {
+          "P2": {
+            "recall": 0.878070701018574,
+            "recall_in_script": 0.878070701018574,
+            "recall_cross_script": null,
+            "candidates": 35980,
+            "per_s1": 20.0
+          },
+          "P1+P2": {
+            "recall": 0.8795686039544638,
+            "recall_in_script": 0.8795686039544638,
+            "recall_cross_script": null,
+            "candidates": 36391,
+            "per_s1": 20.22846025569761
+          },
+          "P1+P2+P3": {
+            "recall": 0.9866686638705812,
+            "recall_in_script": 0.9866686638705812,
+            "recall_cross_script": null,
+            "candidates": 67115,
+            "per_s1": 37.306837131739854
+          }
+        },
+        "20": {
+          "P2": {
+            "recall": 0.9093768723786698,
+            "recall_in_script": 0.9093768723786698,
+            "recall_cross_script": null,
+            "candidates": 71960,
+            "per_s1": 40.0
+          },
+          "P1+P2": {
+            "recall": 0.9093768723786698,
+            "recall_in_script": 0.9093768723786698,
+            "recall_cross_script": null,
+            "candidates": 72026,
+            "per_s1": 40.0366870483602
+          },
+          "P1+P2+P3": {
+            "recall": 0.9928100659077291,
+            "recall_in_script": 0.9928100659077291,
+            "recall_cross_script": null,
+            "candidates": 138369,
+            "per_s1": 76.91439688715953
+          }
+        },
+        "50": {
+          "P2": {
+            "recall": 0.9441282204913122,
+            "recall_in_script": 0.9441282204913122,
+            "recall_cross_script": null,
+            "candidates": 179900,
+            "per_s1": 100.0
+          },
+          "P1+P2": {
+            "recall": 0.9441282204913122,
+            "recall_in_script": 0.9441282204913122,
+            "recall_cross_script": null,
+            "candidates": 179904,
+            "per_s1": 100.00222345747638
+          },
+          "P1+P2+P3": {
+            "recall": 0.9971539844218095,
+            "recall_in_script": 0.9971539844218095,
+            "recall_cross_script": null,
+            "candidates": 353689,
+            "per_s1": 196.60311284046693
+          }
+        },
+        "100": {
+          "P2": {
+            "recall": 0.9603055721989215,
+            "recall_in_script": 0.9603055721989215,
+            "recall_cross_script": null,
+            "candidates": 359800,
+            "per_s1": 200.0
+          },
+          "P1+P2": {
+            "recall": 0.9603055721989215,
+            "recall_in_script": 0.9603055721989215,
+            "recall_cross_script": null,
+            "candidates": 359801,
+            "per_s1": 200.0005558643691
+          },
+          "P1+P2+P3": {
+            "recall": 0.9985020970641102,
+            "recall_in_script": 0.9985020970641102,
+            "recall_cross_script": null,
+            "candidates": 712904,
+            "per_s1": 396.27793218454696
+          }
+        },
+        "200": {
+          "P2": {
+            "recall": 0.9730377471539844,
+            "recall_in_script": 0.9730377471539844,
+            "recall_cross_script": null,
+            "candidates": 719600,
+            "per_s1": 400.0
+          },
+          "P1+P2": {
+            "recall": 0.9730377471539844,
+            "recall_in_script": 0.9730377471539844,
+            "recall_cross_script": null,
+            "candidates": 719600,
+            "per_s1": 400.0
+          },
+          "P1+P2+P3": {
+            "recall": 0.9995506291192331,
+            "recall_in_script": 0.9995506291192331,
+            "recall_cross_script": null,
+            "candidates": 1430663,
+            "per_s1": 795.254585881045
+          }
+        }
+      },
+      "peak_rss_mib": 3492.2,
+      "elapsed_sec": 50.69
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+---
+title: Complete Entity Matching Pipeline — Training, Validation & Test
+---
+flowchart TD
+
+%% ===================== SECTION 1 — DATA -> CANDIDATE GENERATION =====================
+subgraph SEC1["SECTION 1 — DATA → CANDIDATE GENERATION"]
+  direction TB
+  RAW["<b>RAW DATA</b><br/>S1 + S2/S3 Records"]
+  RAWEV["<code>entity_id  business_name           business_address        country<br/>S1-001     Orelee's Barbershop     1795 Westchester Dr     US<br/>S2-104     Orelee Barber Shop Inc  1795 Westchester Drive  US<br/>S3-442     राम मार्केटिंग प्रा लि           KH NO-570/13, Delhi     India</code>"]
+  NORM["<b>NORMALIZATION &amp; FILTERING</b><br/>• Name normalization — Inc / Ltd / Pvt / SARL<br/>• Address normalization — Rd→Road, landmarks<br/>• Missing values — 3.3% of addresses empty<br/>• City / Country / Postcode normalization<br/>• Unicode by CATEGORY, not word-class — protects Devanagari"]
+  BLOCK["<b>CANDIDATE GENERATION / BLOCKING</b><br/>• Name similarity &nbsp;&nbsp;• Address similarity<br/>• City / Postcode keys &nbsp;&nbsp;• TF-IDF / BM25<br/>• Char n-gram + ANN<br/>• Partition by COUNTRY first — 0 cross-country matches<br/><i>Union of name-blocker AND address-blocker is REQUIRED:<br/>14.8% of true pairs share NO name token</i>"]
+  PAIRS["<b>candidate_pairs_v1.tsv</b>"]
+  PAIRSEV["<code>source1_entity_id  candidate_entity_id<br/>S1-001             S2-104<br/>S1-001             S2-981<br/>S1-001             S3-442<br/>S1-001             S3-883</code>"]
+  RAW --> RAWEV --> NORM --> BLOCK --> PAIRS --> PAIRSEV
+end
+
+%% ===================== SECTION 2 — TRAINING & VALIDATION LOOP =====================
+subgraph SEC2["SECTION 2 — TRAINING &amp; VALIDATION LOOP"]
+  direction TB
+  GT["<b>GROUND TRUTH</b><br/>Known correct mappings"]
+  GTEV["<code>source1_entity_id  matched_entity_ids<br/>S1-001             S2-104 ✓</code>"]
+  CHECK1{"<b>GROUND TRUTH CHECK #1</b><br/>Candidate Recall Check<br/>Is the true pair present in candidate_pairs.tsv?"}
+  SUFF["<b>Candidate generation is sufficient</b>"]
+  MISSING["<b>True pair missing</b>"]
+  IMPROVEB["<b>Improve blocking / filtering</b>"]
+  REGEN["<b>Regenerate</b><br/>candidate_pairs_v2.tsv"]
+  NOTE1["<b>IMPORTANT</b> — Ground truth NEVER deletes candidates.<br/>It only answers <i>was the true pair retrieved?</i><br/>ALL generated candidate pairs remain available to the ML model."]
+  GT --> GTEV --> CHECK1
+  CHECK1 -->|YES| SUFF
+  CHECK1 -->|NO| MISSING --> IMPROVEB --> REGEN
+  SUFF -.- NOTE1
+end
+
+PAIRS -->|candidate_pairs.tsv| CHECK1
+REGEN -.->|"↺ IMPROVEMENT LOOP"| BLOCK
+
+%% ===================== SECTION 3 — PAIRWISE FEATURES -> ML MODEL =====================
+subgraph SEC3["SECTION 3 — PAIRWISE FEATURES → ML MODEL"]
+  direction TB
+  FEAT["<b>PAIRWISE FEATURE ENGINEERING</b><br/>• Name similarity &nbsp;&nbsp;• Address similarity<br/>• Jaccard &nbsp;&nbsp;• Levenshtein / edit similarity<br/>• TF-IDF cosine &nbsp;&nbsp;• Char n-gram overlap<br/>• City match &nbsp;&nbsp;• Postal-code match<br/>• Phone similarity &nbsp;&nbsp;• Country match ← constant, drop<br/><i>Computed for EVERY candidate pair, match or not</i>"]
+  VEC["<b>FEATURE VECTOR</b><br/><code>S1-001 → S2-104 &nbsp;[0.91, 0.87, 0.76, 0.94, 1, 1, ...]<br/>S1-001 → S2-981 &nbsp;[0.22, 0.10, 0.08, 0.31, 0, 1, ...]<br/>S1-001 → S3-442 &nbsp;[0.64, 0.71, 0.55, 0.60, 1, 1, ...]</code>"]
+  MODEL["<b>ML MATCHING MODEL</b><br/>XGBoost / LightGBM"]
+  PM["<b>P(match)</b><br/><code>S1-001 → S2-104 &nbsp;0.95<br/>S1-001 → S2-981 &nbsp;0.18<br/>S1-001 → S3-442 &nbsp;0.61</code>"]
+  THRESH{"<b>THRESHOLD</b><br/>P ≥ t ?<br/><i>tuned on macro-F0.5</i>"}
+  MATCH["<b>MATCH</b><br/>S1-001 → S2-104"]
+  NOMATCH["<b>NO MATCH</b><br/>S1-001 → S2-981"]
+  FEAT --> VEC --> MODEL --> PM --> THRESH
+  THRESH -->|"P ≥ t"| MATCH
+  THRESH -->|"P &lt; t"| NOMATCH
+end
+
+SUFF --> FEAT
+
+%% ===================== SECTION 4 — SECOND GROUND TRUTH CHECK =====================
+subgraph SEC4["SECTION 4 — SECOND GROUND TRUTH CHECK"]
+  direction TB
+  CHECK2["<b>GROUND TRUTH CHECK #2</b><br/>Model Evaluation"]
+  OKCASE["<b>MODEL:</b> S1-001 → S2-104<br/><b>GROUND TRUTH:</b> S1-001 → S2-104<br/><b>✓ CORRECT</b>"]
+  BADCASE["<b>MODEL:</b> S1-002 → S2-450<br/><b>GROUND TRUTH:</b> S1-002 → S2-205<br/><b>✕ INCORRECT</b>"]
+  METRICS["<b>VALIDATION METRICS</b><br/>• Precision &nbsp;&nbsp;• Recall &nbsp;&nbsp;• F1<br/>• COMPETITION METRIC: macro-averaged F0.5<br/><code>F0.5 = 1.25·P·R ÷ 0.25·P + R</code><br/><i>computed per S1 entity, then averaged; singletons included</i>"]
+  POOR["<b>Poor validation score</b>"]
+  IMPROVE2["<b>IMPROVE</b><br/>• Features &nbsp;&nbsp;• Model / hyperparameters<br/>• Threshold t &nbsp;&nbsp;• Candidate generation"]
+  RETRAIN["<b>Retrain Model</b>"]
+  CHECK2 --> OKCASE --> METRICS
+  CHECK2 --> BADCASE --> METRICS
+  METRICS --> POOR --> IMPROVE2 --> RETRAIN
+end
+
+MATCH -->|predictions| CHECK2
+RETRAIN -.->|"↺ retrain loop"| MODEL
+IMPROVE2 -.->|"↺ re-enters Section 1"| BLOCK
+
+%% ===================== SECTION 5 — FINAL TEST =====================
+subgraph SEC5["🔒 SECTION 5 — FINAL TEST · GROUND TRUTH HIDDEN"]
+  direction TB
+  TEST["<b>UNSEEN TEST DATA</b><br/>1,732,544 S1 · 4.9M S2 · 5.1M S3"]
+  TNORM["<b>Normalization &amp; Filtering</b><br/><i>identical code path as training</i>"]
+  TBLOCK["<b>Candidate Generation</b><br/><i>same blockers, France now present</i>"]
+  TPAIRS["<b>candidate_pairs.tsv</b><br/><i>submitted for blocking audit</i>"]
+  TFEAT["<b>Same Pairwise Features</b><br/><i>no refitting — reuse train-time transforms</i>"]
+  TMODEL["<b>TRAINED ML MODEL</b><br/><i>frozen weights from Section 3</i>"]
+  TPM["<b>P(match)</b><br/><i>threshold t fixed on validation — NOT retuned</i>"]
+  TFINAL["<b>Final Predicted Matches</b><br/><i>+ one-to-one assignment resolution</i>"]
+  TRESULTS["<b>matching_results.tsv</b><br/><i>every test S1 entity = exactly one row</i>"]
+  SUBMIT(["<b>SUBMISSION</b>"])
+  WARN["⚠ <b>WARNING</b><br/>Ground truth is NOT available during final test prediction.<br/>No recall check. No evaluation loop. One pass only."]
+  TEST --> TNORM --> TBLOCK --> TPAIRS --> TFEAT --> TMODEL --> TPM --> TFINAL --> TRESULTS --> SUBMIT
+  SUBMIT -.- WARN
+end
+
+MODEL -.->|"trained artifact — frozen"| TMODEL
+
+%% ===================== STYLING =====================
+classDef start    fill:#fed7aa,stroke:#c2410c,stroke-width:2px,color:#7c2d12
+classDef flow     fill:#93c5fd,stroke:#1e3a5f,stroke-width:2px,color:#1e3a5f
+classDef file     fill:#60a5fa,stroke:#1e3a5f,stroke-width:2px,color:#12283f
+classDef evidence fill:#1e293b,stroke:#0f172a,stroke-width:1px,color:#22c55e
+classDef decision fill:#fef3c7,stroke:#b45309,stroke-width:2px,color:#78350f
+classDef ok       fill:#a7f3d0,stroke:#047857,stroke-width:2px,color:#065f46
+classDef err      fill:#fecaca,stroke:#b91c1c,stroke-width:2px,color:#7f1d1d
+classDef warn     fill:#fed7aa,stroke:#c2410c,stroke-width:3px,color:#7c2d12
+classDef model    fill:#ddd6fe,stroke:#6d28d9,stroke-width:3px,color:#4c1d95
+classDef note     fill:#ecfdf5,stroke:#047857,stroke-width:2px,stroke-dasharray:6 4,color:#065f46
+
+class RAW,TEST start
+class NORM,BLOCK,FEAT,METRICS,TNORM,TBLOCK,TFEAT,TPM flow
+class PAIRS,TPAIRS,TRESULTS file
+class RAWEV,PAIRSEV,GTEV,VEC,PM evidence
+class CHECK1,THRESH,CHECK2 decision
+class GT,SUFF,MATCH,TFINAL,SUBMIT,OKCASE ok
+class MISSING,NOMATCH,POOR,BADCASE,WARN err
+class IMPROVEB,REGEN,IMPROVE2,RETRAIN warn
+class MODEL,TMODEL model
+class NOTE1 note
+
+style SEC1 fill:#f8fafc,stroke:#1e40af,stroke-width:2px
+style SEC2 fill:#f8fafc,stroke:#1e40af,stroke-width:2px
+style SEC3 fill:#f8fafc,stroke:#1e40af,stroke-width:2px
+style SEC4 fill:#f8fafc,stroke:#1e40af,stroke-width:2px
+style SEC5 fill:#fef7f7,stroke:#b91c1c,stroke-width:4px,stroke-dasharray:8 5
