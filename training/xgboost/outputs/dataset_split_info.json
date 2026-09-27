@@ -1,0 +1,15 @@
+{
+  "n_train_pairs": 254997,
+  "n_val_pairs": 44999,
+  "n_train_entities": 1700,
+  "n_val_entities": 300,
+  "train_pos_rate": 0.024400286376476288,
+  "val_pos_rate": 0.02542278729379177,
+  "val_split_ratio": 0.15,
+  "val_split_seed": 20260926,
+  "n_features": 54,
+  "n_countries": 1,
+  "countries": [
+    "India"
+  ]
+}

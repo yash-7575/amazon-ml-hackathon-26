@@ -1,0 +1,25 @@
+# LightGBM Entity Matching - Requirements
+# Install with: pip install -r requirements.txt
+
+# Core ML
+lightgbm==4.5.0
+scikit-learn==1.5.0
+numpy==1.26.4
+pandas==2.2.0
+
+# String similarity
+rapidfuzz==3.9.0
+
+# Transliteration for cross-script matching
+indic-transliteration==2.0.0
+unidecode==1.3.8
+
+# Utilities
+tqdm==4.66.0
+pyyaml==6.0.1
+
+# Optional: for SHAP feature importance
+# shap==0.44.0
+
+# Optional: for XGBoost comparison (future)
+# xgboost==2.1.0

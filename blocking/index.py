@@ -74,6 +74,57 @@ def transform_queries(index: TfidfIndex, documents: list[str]) -> csr_matrix:
     return q
 
 
+def topk_search_topn(
+    queries: csr_matrix,
+    index_matrix: csr_matrix,
+    k: int,
+    *,
+    chunk_rows: int = 100_000,
+    n_threads: int = 10,
+    lower_bound: float = 0.0,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Top-K via sparse_dot_topn (no dense materialization, no full-row
+    argpartition). Same return convention as topk_search: (indices, scores)
+    with -1/-inf padding, each row sorted by score desc, ties by index asc.
+
+    Requires the `sparse-dot-topn` package (MIT). Falls back to topk_search
+    if the import fails.
+    """
+    from sparse_dot_topn import awesome_cossim_topn
+
+    n_q = queries.shape[0]
+    n_i = index_matrix.shape[0]
+    k_eff = min(k, n_i)
+    if k_eff == 0 or n_q == 0:
+        return (
+            np.full((n_q, k), -1, dtype=np.int64),
+            np.full((n_q, k), -np.inf, dtype=np.float32),
+        )
+    A = queries.tocsr().astype(np.float32)
+    BT = index_matrix.T.tocsr().astype(np.float32)  # (F, n_i)
+    out_idx = np.full((n_q, k), -1, dtype=np.int64)
+    out_scr = np.full((n_q, k), -np.inf, dtype=np.float32)
+    for start in range(0, n_q, chunk_rows):
+        end = min(start + chunk_rows, n_q)
+        C = awesome_cossim_topn(
+            A[start:end], BT, k_eff,
+            lower_bound=lower_bound, use_threads=True, n_jobs=n_threads,
+        ).tocsr()
+        indptr, indices, data = C.indptr, C.indices, C.data
+        for r in range(end - start):
+            s, e = indptr[r], indptr[r + 1]
+            if s == e:
+                continue
+            row_idx = indices[s:e].astype(np.int64)
+            row_scr = data[s:e].astype(np.float32)
+            order = np.lexsort((row_idx, -row_scr))
+            row_idx, row_scr = row_idx[order], row_scr[order]
+            m = min(len(row_idx), k_eff)
+            out_idx[start + r, :m] = row_idx[:m]
+            out_scr[start + r, :m] = row_scr[:m]
+    return out_idx, out_scr
+
+
 def topk_search(
     queries: csr_matrix,
     index_matrix: csr_matrix,
@@ -82,6 +133,8 @@ def topk_search(
     chunk_rows: int,
     dtype: str = 'float32',
     max_temp_bytes: int = 512 * 1024 * 1024,   # 512 MiB cap on chunk-score buffer
+    backend: str = 'dense',
+    n_threads: int = 10,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Return (indices[n_queries, k], scores[n_queries, k]) via chunked sparse matmul.
 
@@ -89,7 +142,15 @@ def topk_search(
     exceed max_temp_bytes. This is what keeps us inside 14GB RAM when the index
     has millions of documents. Padding: if index has fewer than k rows, missing
     slots are filled with index=-1 and score=-inf.
+
+    backend='topn' delegates to topk_search_topn (same convention, far less
+    memory traffic at test scale).
     """
+    if backend == 'topn':
+        return topk_search_topn(
+            queries, index_matrix, k,
+            chunk_rows=max(chunk_rows, 10_000), n_threads=n_threads,
+        )
     n_q = queries.shape[0]
     n_i = index_matrix.shape[0]
     # Memory-aware auto chunk sizing.

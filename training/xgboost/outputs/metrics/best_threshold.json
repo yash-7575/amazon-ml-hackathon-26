@@ -1,0 +1,17 @@
+{
+  "best_threshold": 0.9,
+  "best_metrics": {
+    "threshold": 0.9,
+    "macro_f05": 0.9643226568418269,
+    "macro_precision": 0.9751349206349206,
+    "macro_recall": 0.9531349206349207,
+    "macro_f1": 0.9640094195277517,
+    "global_precision": 0.9706405693950177,
+    "global_recall": 0.9536713286713286,
+    "global_f1": 0.9620811287477954,
+    "pr_auc": 0.9895241589764255,
+    "n_predicted": 1124.0,
+    "n_singletons": 0.0
+  },
+  "timestamp": "2026-09-27T15:07:58.737880"
+}

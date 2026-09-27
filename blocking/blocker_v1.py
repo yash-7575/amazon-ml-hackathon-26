@@ -54,13 +54,13 @@ class PartitionData:
         # for P3 memory: track which docs have non-empty address.
         self.addr_nonempty_mask: list[bool] = []
 
-    def add(self, row: dict) -> None:
+    def add(self, row: dict, keep_raw: bool = True) -> None:
         eid = row['entity_id']
         name = row.get('business_name', '') or ''
         addr = row.get('business_address', '') or ''
         self.ids.append(eid)
-        self.name_raw.append(name)
-        self.addr_raw.append(addr)
+        self.name_raw.append(name if keep_raw else '')
+        self.addr_raw.append(addr if keep_raw else '')
         self.name_doc.append(base_normalize(name))
         addr_n = base_normalize(addr)
         self.addr_doc.append(addr_n)
@@ -76,10 +76,11 @@ class PartitionData:
         return len(self.ids)
 
 
-def load_partition(path: str, target_ck: str, source_tag: str, label: str) -> PartitionData:
+def load_partition(path: str, target_ck: str, source_tag: str, label: str,
+                   keep_raw: bool = True) -> PartitionData:
     p = PartitionData(label=label, source_tag=source_tag)
     for row in stream_country_rows(path, target_ck):
-        p.add(row)
+        p.add(row, keep_raw=keep_raw)
     return p
 
 
@@ -191,6 +192,7 @@ def block_p2_name_tfidf(
     top_idx, top_scr = topk_search(
         Q, index.matrix, cfg.p2_top_k,
         chunk_rows=cfg.p2_chunk_rows, dtype=cfg.p2_score_dtype,
+        backend=cfg.topk_backend, n_threads=cfg.topk_threads,
     )
     out: dict[int, list[tuple[str, str, float, str]]] = defaultdict(list)
     for qi, s1_idx in enumerate(q_pos_to_s1):
@@ -231,6 +233,7 @@ def block_p3_addr_tfidf(
     top_idx, top_scr = topk_search(
         Q, index.matrix, cfg.p3_top_k,
         chunk_rows=cfg.p3_chunk_rows, dtype=cfg.p3_score_dtype,
+        backend=cfg.topk_backend, n_threads=cfg.topk_threads,
     )
     out: dict[int, list[tuple[str, str, float, str]]] = defaultdict(list)
     for qi, s1_idx in enumerate(q_pos_to_s1):
@@ -342,15 +345,26 @@ def rescore_and_union(
         cos_addr[mask_s3] = _cos_for(addr_index_s3, s3_cids, s3_q_addr)
 
     combined = cfg.rescore_w_name * cos_name + cfg.rescore_w_addr * cos_addr
-    # Recall-preserving guard: never let the rescore RANK a pair lower than the
-    # raw single-blocker score it earned. Concretely, we take the max of:
-    #   - the weighted combined score
-    #   - the raw name-blocker score (P1/P2/P4 hits keep their standing)
-    #   - a boosted raw address-blocker score (P3 hits keep their standing)
-    # This preserves the union recall through the top-K trimming — the previous
-    # version dropped ~4pp of true pairs on the India dry run because address-only
-    # hits with strong addr_cos but zero name_cos were outranked by name-strong
-    # distractors. The fix is documented in DESIGN.md #rescore.
+    # Weighted raw-score floor. Prevents the combined score from ranking a pair
+    # strictly below either raw signal after the weights are applied.
+    #
+    # This is imperfect: on the India smoke test the final top-K recall
+    # (94.30% @ K=50) lags the P1+P2+P3 union recall (98.27%) by ~4pp. The
+    # ranking is where true pairs get displaced by name-strong distractors, not
+    # the union.
+    #
+    # DO NOT "fix" this by dropping the weight multiplication (using
+    # np.maximum(pair_raw, cos_addr) unscaled). It was tested and measured
+    # WORSE — India smoke final top-K dropped to 93.30% (−1 pp), cross-script
+    # to 73.68% (−2.7 pp). Cause: real cos_name values run 0.5–0.95, real
+    # cos_addr values run 0.10–0.35 (TF-IDF cosine, not Jaccard). Unweighted
+    # max promotes the field with higher dynamic range — always names — so
+    # name-strong distractors (per FINDING 4, generic names are abundant)
+    # get bigger score boosts than address-only true pairs. Net: fewer true
+    # pairs survive the top-K trim.
+    #
+    # The correct long-term fix is score calibration / rank-fusion (RRF); the
+    # short-term mitigation is raising final_top_k so the trim discards less.
     raw_floor = np.maximum(pair_raw * cfg.rescore_w_name,
                            cos_addr * cfg.rescore_w_addr)
     combined = np.maximum(combined, raw_floor)
@@ -369,6 +383,48 @@ def rescore_and_union(
         lst.sort(key=lambda t: (-t[2], t[1]))
         trimmed[i] = lst[: cfg.final_top_k]
     return trimmed
+
+
+def rescore_and_union_batched(
+    s1: PartitionData,
+    per_source_hits: list[dict[int, list[tuple[str, str, float, str]]]],
+    s2_by_id: dict[str, tuple[str, str]],
+    s3_by_id: dict[str, tuple[str, str]],
+    cfg: BlockerConfig,
+    name_index_s2, name_index_s3,
+    addr_index_s2, addr_index_s3,
+    s1_batch: int = 20000,
+) -> dict[int, list[tuple[str, str, float, str]]]:
+    """Batch rescore_and_union over S1-index ranges so the pair-level
+    vectorization never holds all pairs at once (test-scale OOM fix).
+    Identical output to a single rescore_and_union call: per-S1 top-K trim
+    is independent across S1 entities."""
+    out: dict[int, list[tuple[str, str, float, str]]] = {}
+    n = s1.n
+    for start in range(0, n, s1_batch):
+        end = min(start + s1_batch, n)
+        sub = PartitionData(label=s1.label, source_tag=s1.source_tag)
+        sub.ids = s1.ids[start:end]
+        sub.name_doc = s1.name_doc[start:end]
+        sub.addr_doc = s1.addr_doc[start:end]
+        sub.name_core = s1.name_core[start:end]
+        sub.name_translit = s1.name_translit[start:end]
+        sub.addr_nonempty_mask = s1.addr_nonempty_mask[start:end]
+        remapped = []
+        for hits in per_source_hits:
+            d: dict[int, list[tuple[str, str, float, str]]] = {}
+            for i, lst in hits.items():
+                if start <= i < end:
+                    d[i - start] = lst
+            remapped.append(d)
+        part = rescore_and_union(
+            sub, remapped, s2_by_id=s2_by_id, s3_by_id=s3_by_id, cfg=cfg,
+            name_index_s2=name_index_s2, name_index_s3=name_index_s3,
+            addr_index_s2=addr_index_s2, addr_index_s3=addr_index_s3,
+        )
+        for i, lst in part.items():
+            out[i + start] = lst
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -392,9 +448,9 @@ def run_partition(
     s2_path = d + f'{cfg.split}_source2.tsv'
     s3_path = d + f'{cfg.split}_source3.tsv'
 
-    s1 = load_partition(s1_path, ck, 'S1', label=f'S1[{ck}]')
-    s2 = load_partition(s2_path, ck, 'S2', label=f'S2[{ck}]')
-    s3 = load_partition(s3_path, ck, 'S3', label=f'S3[{ck}]')
+    s1 = load_partition(s1_path, ck, 'S1', label=f'S1[{ck}]', keep_raw=False)
+    s2 = load_partition(s2_path, ck, 'S2', label=f'S2[{ck}]', keep_raw=False)
+    s3 = load_partition(s3_path, ck, 'S3', label=f'S3[{ck}]', keep_raw=False)
     t_load = time.time() - t0
 
     stats = {
@@ -433,12 +489,13 @@ def run_partition(
     # Rescore + union — reuse the same indexes.
     t = time.time()
     per_source_hits = [hits_p1, hits_p2_s2, hits_p2_s3, hits_p3_s2, hits_p3_s3]
-    final = rescore_and_union(
+    final = rescore_and_union_batched(
         s1, per_source_hits,
         s2_by_id={}, s3_by_id={},
         cfg=cfg,
         name_index_s2=name_s2[0], name_index_s3=name_s3[0],
         addr_index_s2=addr_s2[0], addr_index_s3=addr_s3[0],
+        s1_batch=20000,
     )
     stats['rescore_sec'] = round(time.time() - t, 2)
     # Explicitly drop indexes before writing (frees memory before the next partition).

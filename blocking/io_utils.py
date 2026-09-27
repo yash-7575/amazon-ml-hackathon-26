@@ -6,13 +6,20 @@ the current country's rows in RAM.
 from __future__ import annotations
 import csv
 import os
-import resource
+import sys
 from typing import Iterator, Iterable
 from collections import defaultdict
 
 from .normalize import country_key
 
 csv.field_size_limit(10**9)
+
+# Windows compatibility for resource module
+if sys.platform == 'win32':
+    import psutil
+    _process = psutil.Process(os.getpid())
+else:
+    import resource
 
 
 def read_tsv(path: str) -> Iterator[dict]:
@@ -83,6 +90,9 @@ class CandidateWriter:
             self._w.writerow([s1_id, cid, src, f'{sc:.6f}'])
             self.rows_written += 1
 
+    def flush(self) -> None:
+        self._f.flush()
+
     def close(self):
         self._f.close()
 
@@ -94,8 +104,12 @@ class CandidateWriter:
 
 
 def peak_rss_mb() -> float:
-    """Peak resident set size for this process in MiB (Linux)."""
-    ru = resource.getrusage(resource.RUSAGE_SELF)
-    # ru_maxrss is in KiB on Linux, bytes on macOS.
-    kb = ru.ru_maxrss
-    return kb / 1024.0  # MiB on Linux
+    """Peak resident set size for this process in MiB."""
+    if sys.platform == 'win32':
+        # psutil returns bytes on Windows
+        return _process.memory_info().rss / 1024 / 1024
+    else:
+        ru = resource.getrusage(resource.RUSAGE_SELF)
+        # ru_maxrss is in KiB on Linux, bytes on macOS.
+        kb = ru.ru_maxrss
+        return kb / 1024.0  # MiB on Linux

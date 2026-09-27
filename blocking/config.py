@@ -12,9 +12,10 @@ from typing import Optional
 @dataclass(frozen=True)
 class BlockerConfig:
     # --- data ---
-    data_root: str = '/home/yash/Downloads/Amazon-ML-dataset/student_resource/dataset/'
+    # Local Windows paths for D:\Amazon_challenge_ML setup
+    data_root: str = r'D:/Amazon_challenge_ML/Amazon-ML-dataset/student_resource/dataset/'
     split: str = 'train'  # 'train' or 'test'
-    output_path: str = '/home/yash/dev/clg/amlc-2026/blocking/candidate_pairs.tsv'
+    output_path: str = r'D:\Amazon_challenge_ML\amazon-ml-hackathon-26\blocking\candidate_pairs.tsv'
 
     # --- partitioning ---
     # FINDING 2: matches never cross country. Free 3x reduction.
@@ -27,14 +28,18 @@ class BlockerConfig:
     # ~22% of true pairs (FINDING 3). Near-zero CPU cost.
     p1_enabled: bool = True
 
-    # --- P2: char-3gram TF-IDF on name ---
-    # Primary engine. Ceiling per FINDING 3 is 90.98% (share >=2 name char-3grams).
-    # No max_df: v0 failed at 45.53% recall precisely because of a hard df cut
-    # (PROJECT_CONTEXT "Known negative result"). IDF weighting is the correct answer.
+    # --- P2: WORD TF-IDF on name (TEST-scale revision) ---
+    # char-3gram measured 6.9ms/query at 700k targets with 10 threads
+    # (staged full-France run): full TEST = ~15h single-proc, infeasible
+    # before the deadline. Word unigrams cost ~1000x less per query
+    # (5 terms x short postings vs 80 ngrams x long postings) while the
+    # token-sharing ceiling is 85% (FINDING 3). Typo-robustness loss is
+    # accepted explicitly for deadline fit. Model features are blocker-free,
+    # so the candidate-set shift cannot break feature semantics.
     p2_enabled: bool = True
-    p2_analyzer: str = 'char_wb'
-    p2_ngram_lo: int = 3
-    p2_ngram_hi: int = 3
+    p2_analyzer: str = 'word'
+    p2_ngram_lo: int = 1
+    p2_ngram_hi: int = 2
     p2_min_df: int = 2         # drops pure typos / hapax n-grams; safe.
     p2_max_df: float = 1.0     # NO CAP. IDF handles common n-grams naturally.
     p2_sublinear_tf: bool = True
@@ -58,6 +63,10 @@ class BlockerConfig:
     p3_top_k: int = 30
     p3_chunk_rows: int = 1024
     p3_score_dtype: str = 'float32'
+    # Top-K kernel: 'topn' (sparse_dot_topn, no dense materialization; required
+    # for test-scale partitions) or 'dense' (legacy exact path in index.py).
+    topk_backend: str = 'topn'
+    topk_threads: int = 10
     # Records with empty address contribute NO document to the P3 index but still
     # emit a candidate list from P1/P2/P4 — this is why P3 is a UNION, not a filter.
 
@@ -75,7 +84,13 @@ class BlockerConfig:
     # missing / dirty data (3.3% empty; addr Jaccard p10=0.30 vs name p10=0.174).
     rescore_w_name: float = 0.6
     rescore_w_addr: float = 0.4
-    final_top_k: int = 50   # per S1 entity, after union + rescore
+    # K=50 measured 94.30% on India smoke (98.27% union) — 3.97pp gap from
+    # rescore ranking, not blocking. K sweep {50,100,150} on the same smoke:
+    # K=100 -> 95.37%, K=150 -> 98.19% (within 0.08pp of union). Picked K=150
+    # as the smallest K within ~1pp of union. Cost: 3x feature-stage pairs vs
+    # K=50. Union caps around ~200/S1 so K=150 is nearly all of it. See
+    # results/smoke_test_india_2000_60k_ksweep.log.
+    final_top_k: int = 150   # per S1 entity, after union + rescore
 
     # --- Determinism / I/O ---
     seed: int = 20260926

@@ -1,0 +1,7 @@
+[run_test] scanning S1 country counts...
+       809,986  india
+       663,106  us
+       259,452  france
+[run_test] order=['france'] final_top_k=50 backend=topn threads=10
+
+[run_test] === partition 'france' (S1 rows = 259,452) ===
