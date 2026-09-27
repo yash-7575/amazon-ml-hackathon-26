@@ -74,6 +74,23 @@ def transform_queries(index: TfidfIndex, documents: list[str]) -> csr_matrix:
     return q
 
 
+# The transpose of a multi-million-row index costs seconds and is IDENTICAL on every
+# call. topk_search used to rebuild it per invocation, so a run that queries in N batches
+# paid for N transposes of the same matrix. Cache it on identity and pre-warm it once
+# before threads start.
+_T_CACHE: dict = {}
+
+
+def transposed_index(m: csr_matrix) -> csr_matrix:
+    key = id(m)
+    hit = _T_CACHE.get(key)
+    if hit is not None and hit[0] is m:
+        return hit[1]
+    t = m.T.tocsr()
+    _T_CACHE[key] = (m, t)
+    return t
+
+
 def topk_search(
     queries: csr_matrix,
     index_matrix: csr_matrix,
@@ -103,7 +120,7 @@ def topk_search(
             np.full((n_q, k), -np.inf, dtype=np.float32),
         )
 
-    idx_T = index_matrix.T.tocsr()
+    idx_T = transposed_index(index_matrix)
     out_idx = np.full((n_q, k), -1, dtype=np.int64)
     out_scr = np.full((n_q, k), -np.inf, dtype=np.float32)
 

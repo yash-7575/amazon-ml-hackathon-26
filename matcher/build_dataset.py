@@ -96,6 +96,9 @@ def build(pairs_path: str, tag: str, split: str = 'train',
         s1_group=s1_group, cand_group=cand_group,
         left_ids=np.array(left.ids), left_countries=np.array(left.countries),
     )
+    import pickle
+    with open(os.path.join(OUT_DIR, f'{tag}_idf.pkl'), 'wb') as f:
+        pickle.dump({'name': name_idf, 'addr': a_idf}, f, protocol=4)
     with open(os.path.join(OUT_DIR, f'{tag}_cols.json'), 'w') as f:
         json.dump({'cols': cols, 'cfg': json.loads(cfg.to_json()),
                    'fingerprint': cfg.fingerprint(), 'pairs_path': pairs_path,

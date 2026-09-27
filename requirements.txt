@@ -1,0 +1,14 @@
+# Pinned to the versions used to produce output/matching_results.tsv.
+# Python 3.12. CPU only -- no GPU and no pretrained models are used anywhere.
+numpy==2.4.6
+scipy==1.17.1
+scikit-learn==1.8.0
+pandas==3.0.3
+lightgbm==4.7.0
+rapidfuzz==3.14.6
+Unidecode==1.4.0
+
+# Optional. blocking/normalize.py:transliterate_deva prefers indic_transliteration for
+# higher-quality Devanagari romanization and falls back to Unidecode when it is absent.
+# The submitted run used the Unidecode fallback, so results reproduce without it.
+# indic-transliteration==2.3.68
